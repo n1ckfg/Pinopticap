@@ -51,25 +51,6 @@ void ofApp::setup() {
         gray.allocate(width, height, OF_IMAGE_GRAYSCALE);        
     }
     
-    cam.setup(width, height, camFramerate, videoColor); // color/gray;
-
-    camSharpness = settings.getValue("settings:sharpness", 0); 
-    camContrast = settings.getValue("settings:contrast", 0); 
-    camBrightness = settings.getValue("settings:brightness", 50); 
-    camIso = settings.getValue("settings:iso", 300); 
-    camExposureMode = settings.getValue("settings:exposure_mode", 0); 
-    camExposureCompensation = settings.getValue("settings:exposure_compensation", 0); 
-    camShutterSpeed = settings.getValue("settings:shutter_speed", 0);
-
-    cam.setSharpness(camSharpness);
-    cam.setContrast(camContrast);
-    cam.setBrightness(camBrightness);
-    cam.setISO(camIso);
-    cam.setExposureMode((MMAL_PARAM_EXPOSUREMODE_T) camExposureMode);
-    cam.setExposureCompensation(camExposureCompensation);
-    cam.setShutterSpeed(camShutterSpeed);
-    //cam.setFrameRate // not implemented in ofxCvPiCam
-    
     // ~ ~ ~   get a persistent name for this computer   ~ ~ ~
     // a randomly generated id
     uniqueId = "RPi";
@@ -154,7 +135,7 @@ void ofApp::setup() {
 void ofApp::update() {
     timestamp = (int) ofGetSystemTimeMillis();
     
-    frame = cam.grab();
+    //frame = cam.grab();
 
     if (!frame.empty()) {
         toOf(frame, gray.getPixelsRef());
@@ -308,7 +289,7 @@ void ofApp::draw() {
 
     if (debug) {
         stringstream info;
-        info << cam.width << "x" << cam.height << " @ "<< ofGetFrameRate() <<"fps"<< "\n";
+        info << width << "x" << height << " @ "<< ofGetFrameRate() <<"fps"<< "\n";
         ofDrawBitmapStringHighlight(info.str(), 10, 10, ofColor::black, ofColor::yellow);
     }
 }
