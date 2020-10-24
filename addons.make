@@ -8,6 +8,5 @@ ofxMediaType
 ofxNetworkUtils
 ofxHTTP
 ofxJSON
-ofxJSONRPC
 ofxOsc
 ofxXmlSettings
