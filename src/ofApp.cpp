@@ -289,7 +289,7 @@ void ofApp::draw() {
 
     if (debug) {
         stringstream info;
-        info << width << "x" << height << " @ "<< ofGetFrameRate() <<"fps"<< "\n";
+        info << width << "x" << height << " @ " << ofGetFrameRate() << "fps" << " / " << timestamp << "\n";
         ofDrawBitmapStringHighlight(info.str(), 10, 10, ofColor::black, ofColor::yellow);
     }
 }
