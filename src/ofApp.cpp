@@ -122,7 +122,8 @@ void ofApp::setup() {
         wsServer.setup(wsSettings);
         wsServer.webSocketRoute().registerWebSocketEvents(this);
         wsServer.start();
-        cout << "Using websockets." << endl;
+                
+        cout << "Using websockets with " << wsServer.webSocketRoute().numConnections() << " connections." << endl;
     }
     
     if (sendOsc) {
