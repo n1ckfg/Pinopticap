@@ -35,7 +35,8 @@ void ofApp::setup() {
     brightestPixel = (bool) settings.getValue("settings:brightest_pixel", 0); 
 
     oscHost = settings.getValue("settings:osc_host", "127.0.0.1");
-    oscPort = settings.getValue("settings:osc_port", 7110);
+    oscPort = settings.getValue("settings:osc_port", 7114);
+    oscReceivePort = settings.getValue("settings:osc_receive_port", 7110);
     streamPort = settings.getValue("settings:stream_port", 7111);
     wsPort = settings.getValue("settings:ws_port", 7112);
     postPort = settings.getValue("settings:post_port", 7113);
@@ -128,6 +129,7 @@ void ofApp::setup() {
     
     if (sendOsc) {
         sender.setup(oscHost, oscPort);
+        receiver.setup(oscReceivePort);
         cout << "Using OSC." << endl;
     }
 }
@@ -162,6 +164,59 @@ void ofApp::update() {
                     break;
             }
        	}
+    }
+    
+    if (sendOsc) {
+        // check for waiting messages
+        while (receiver.hasWaitingMessages()) {
+            // get the next message
+            ofxOscMessage m;
+            receiver.getNextMessage(m);
+
+            // check for mouse moved message
+            if (m.getAddress() == "/mouse/position") {
+                // both the arguments are floats
+                //mouseXf = m.getArgAsFloat(0);
+                //mouseYf = m.getArgAsFloat(1);
+            }  else if (m.getAddress() == "/mouse/button") {
+                // first argument is int32, second is a string
+                //mouseButtonInt = m.getArgAsInt32(0);
+                //mouseButtonState = m.getArgAsString(1);
+            } else if (m.getAddress() == "/image") {
+                ofBuffer buffer = m.getArgAsBlob(0);
+                //receivedImage.load(buffer);
+            } else {
+                // unrecognized message: display on the bottom of the screen
+                string msgString;
+                msgString = m.getAddress();
+                msgString += ":";
+                for (size_t i = 0; i < m.getNumArgs(); i++) {
+                    // get the argument type
+                    msgString += " ";
+                    msgString += m.getArgTypeName(i);
+                    msgString += ":";
+
+                    // display the argument - make sure we get the right type
+                    if (m.getArgType(i) == OFXOSC_TYPE_INT32) {
+                        msgString += ofToString(m.getArgAsInt32(i));
+                    } else if(m.getArgType(i) == OFXOSC_TYPE_FLOAT) {
+                        msgString += ofToString(m.getArgAsFloat(i));
+                    } else if(m.getArgType(i) == OFXOSC_TYPE_STRING) {
+                        msgString += m.getArgAsString(i);
+                    } else {
+                        msgString += "unhandled argument type " + m.getArgTypeName(i);
+                    }
+                }
+
+                // add to the list of strings to display
+                //msgStrings[currentMsgString] = msgString;
+                //timers[currentMsgString] = ofGetElapsedTimef() + 5.0f;
+                //currentMsgString = (currentMsgString + 1) % NUM_MSG_STRINGS;
+
+                // clear the next line
+                //msgStrings[currentMsgString] = "";
+            }
+        }
     }
 }
 

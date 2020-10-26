@@ -21,7 +21,7 @@ class ofApp : public ofBaseApp {
 	
 	string uniqueId, hostName; 
 	string oscHost;
-	int oscPort, streamPort, wsPort, postPort;
+	int oscPort, oscReceivePort, streamPort, wsPort, postPort;
 
 	bool debug; // draw to local screen, default true
 
@@ -83,6 +83,7 @@ class ofApp : public ofBaseApp {
 	bool thresholdKeyFast;
 
 	ofxOscSender sender;
+    ofxOscReceiver receiver;
 	void sendOscVideo();
 	void sendOscBlobs(int index, float x, float y);
 	void sendOscContours(int index);
