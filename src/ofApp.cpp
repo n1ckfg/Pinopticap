@@ -71,6 +71,8 @@ void ofApp::update() {
         ofxOscMessage msg;
         receiver.getNextMessage(msg);
 
+		cout << "New OSC message received." << endl;
+
         string newHostName = msg.getArgAsString(0);
         string newUniqueId = msg.getArgAsString(1);
         
