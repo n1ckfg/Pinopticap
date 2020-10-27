@@ -26,10 +26,15 @@ void ofApp::setup() {
  
     debug = (bool) settings.getValue("settings:debug", 1);
 
-    // ~ ~ ~   get a persistent name for this computer   ~ ~ ~
-    // a randomly generated id
-    uniqueId = "RPi";
-    file.open(ofToDataPath("unique_id.txt"), ofFile::ReadWrite, false);
+	// ~ ~ ~   get a persistent name for this computer   ~ ~ ~
+	// a randomly generated id
+#ifdef TARGET_LINUX_ARM
+	uniqueId = "RPi";
+#else
+	uniqueId = "";
+#endif
+
+	file.open(ofToDataPath("unique_id.txt"), ofFile::ReadWrite, false);
     ofBuffer buff;
     if (file) { // use existing file if it's there
         buff = file.readToBuffer();
@@ -41,12 +46,16 @@ void ofApp::setup() {
         buff.set(uniqueId.c_str(), uniqueId.size());
         ofBufferToFile("unique_id.txt", buff);
     }
-   
+
+#ifdef TARGET_LINUX_ARM
     // the actual RPi hostname
     ofSystem("cp /etc/hostname " + ofToDataPath("DocumentRoot/js/"));
     hostName = ofSystem("cat /etc/hostname");
     hostName.pop_back(); // last char is \n
-                    
+#else
+	hostName = "unknown";
+#endif
+
     sender.setup(oscHost, oscPort);
     receiver.setup(oscReceivePort);
     cout << "Using OSC." << endl;
@@ -62,13 +71,14 @@ void ofApp::update() {
         ofxOscMessage msg;
         receiver.getNextMessage(msg);
 
-        string hostName = msg.getArgAsString(0);
-        string uniqueId = msg.getArgAsString(1);
+        string newHostName = msg.getArgAsString(0);
+        string newUniqueId = msg.getArgAsString(1);
         
-        int whichOne = checkUniqueId(uniqueId);
+        int whichOne = checkUniqueId(newUniqueId);
         
         if (whichOne == -1) {
-            Eye eye = Eye(hostName, uniqueId);
+			cout << "New Eye detected: " << newHostName << " " << newUniqueId << endl;
+            Eye eye = Eye(newHostName, newUniqueId);
             eyes.push_back(eye);
             whichOne = eyes.size()-1;
         }
@@ -110,8 +120,8 @@ void ofApp::sendOscBlobs(int index, float x, float y, float z) {
     ofxOscMessage m;
     m.setAddress("/blob");
 
-    m.addStringArg(hostName);   
-    m.addStringArg(uniqueId);
+	m.addStringArg(hostName);
+	m.addStringArg(uniqueId);
     m.addIntArg(index);  
     m.addFloatArg(x);
     m.addFloatArg(y);

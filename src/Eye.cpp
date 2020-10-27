@@ -14,6 +14,8 @@ void Eye::addBlob(int _index, float _x, float _y, int _timestamp, int _diff_time
     blob.y = _y;
     blob.timestamp = abs(_diff_timestamp - _timestamp);
     
+	cout << "Blob received, diff " << blob.timestamp << endl;
+
     blobs.push_back(blob);
 }
 
@@ -25,5 +27,7 @@ void Eye::addVideo(ofBuffer _buffer, int _timestamp, int _diff_timestamp) {
     video.image.load(_buffer);
     video.timestamp = abs(_diff_timestamp - _timestamp);
     
+	cout << "Video received, diff " << video.timestamp << endl;
+
     videos.push_back(video);
 }

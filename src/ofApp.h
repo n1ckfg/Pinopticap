@@ -16,7 +16,8 @@ class ofApp : public ofBaseApp {
         int width, height, appFramerate, camFramerate;
         
         string uniqueId, hostName;
-        string oscHost;
+
+		string oscHost;
         int oscPort, oscReceivePort;
         
         int timestamp;
