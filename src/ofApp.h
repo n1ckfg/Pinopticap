@@ -31,5 +31,7 @@ class ofApp : public ofBaseApp {
         ofxOscSender sender;
         ofxOscReceiver receiver;
         void sendOscBlobs(int index, float x, float y, float z);
-
+        
+        int checkUniqueId(string _uniqueId);
+    
 };

@@ -56,64 +56,49 @@ void ofApp::setup() {
 void ofApp::update() {
     timestamp = (int) ofGetSystemTimeMillis();
     
-    /*
     // check for waiting messages
     while (receiver.hasWaitingMessages()) {
         // get the next message
-        ofxOscMessage m;
-        receiver.getNextMessage(m);
+        ofxOscMessage msg;
+        receiver.getNextMessage(msg);
 
-        // check for mouse moved message
-        if (m.getAddress() == "/mouse/position") {
-            // both the arguments are floats
-            //mouseXf = m.getArgAsFloat(0);
-            //mouseYf = m.getArgAsFloat(1);
-        }  else if (m.getAddress() == "/mouse/button") {
-            // first argument is int32, second is a string
-            //mouseButtonInt = m.getArgAsInt32(0);
-            //mouseButtonState = m.getArgAsString(1);
-        } else if (m.getAddress() == "/image") {
-            ofBuffer buffer = m.getArgAsBlob(0);
-            //receivedImage.load(buffer);
-        } else {
-            // unrecognized message: display on the bottom of the screen
-            string msgString;
-            msgString = m.getAddress();
-            msgString += ":";
-            for (size_t i = 0; i < m.getNumArgs(); i++) {
-                // get the argument type
-                msgString += " ";
-                msgString += m.getArgTypeName(i);
-                msgString += ":";
-
-                // display the argument - make sure we get the right type
-                if (m.getArgType(i) == OFXOSC_TYPE_INT32) {
-                    msgString += ofToString(m.getArgAsInt32(i));
-                } else if(m.getArgType(i) == OFXOSC_TYPE_FLOAT) {
-                    msgString += ofToString(m.getArgAsFloat(i));
-                } else if(m.getArgType(i) == OFXOSC_TYPE_STRING) {
-                    msgString += m.getArgAsString(i);
-                } else {
-                    msgString += "unhandled argument type " + m.getArgTypeName(i);
-                }
-            }
-
-            // add to the list of strings to display
-            //msgStrings[currentMsgString] = msgString;
-            //timers[currentMsgString] = ofGetElapsedTimef() + 5.0f;
-            //currentMsgString = (currentMsgString + 1) % NUM_MSG_STRINGS;
-
-            // clear the next line
-            //msgStrings[currentMsgString] = "";
+        string hostName = msg.getArgAsString(0);
+        string uniqueId = msg.getArgAsString(1);
+        
+        int whichOne = checkUniqueId(uniqueId);
+        
+        if (whichOne == -1) {
+            Eye eye = Eye(hostName, uniqueId);
+            eyes.push_back(eye);
+            whichOne = eyes.size()-1;
+        }
+        
+        if (msg.getAddress() == "/blob") {
+            int index = msg.getArgAsInt32(2);
+            float x = msg.getArgAsFloat(3);
+            float y = msg.getArgAsFloat(4);
+            int msg_timestamp = msg.getArgAsInt32(5);
+            
+            eyes[whichOne].addBlob(index, x, y, msg_timestamp, timestamp);
+        } else if (msg.getAddress() == "/video") {
+            ofBuffer buffer = msg.getArgAsBlob(2);
+            int msg_timestamp = msg.getArgAsInt32(3);
+            
+            eyes[whichOne].addVideo(buffer, msg_timestamp, timestamp);
         }
     }
-    */
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
     ofBackground(0);
 
+    for (int i=0; i<eyes.size(); i++) {
+        for (int j=0; j<eyes[i].videos.size(); j++) {
+            eyes[i].videos[j].image.draw(0,0);
+        }
+    }
+    
     if (debug) {
         stringstream info;
         info << width << "x" << height << " @ " << ofGetFrameRate() << "fps" << " / " << timestamp << "\n";
@@ -136,5 +121,14 @@ void ofApp::sendOscBlobs(int index, float x, float y, float z) {
     sender.sendMessage(m);
 }
 
-
+int ofApp::checkUniqueId(string _uniqueId) {
+    int idx = -1;
+    for (int i=0; i<eyes.size(); i++) {
+        if (_uniqueId == eyes[i].uniqueId) {
+            idx = i;
+            break;
+        }
+    }
+    return idx;
+}
 
