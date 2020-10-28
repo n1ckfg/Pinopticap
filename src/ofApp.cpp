@@ -26,6 +26,8 @@ void ofApp::setup() {
  
     debug = (bool) settings.getValue("settings:debug", 1);
 
+	dotSize = 10;
+
 	// ~ ~ ~   get a persistent name for this computer   ~ ~ ~
 	// a randomly generated id
 #ifdef TARGET_LINUX_ARM
@@ -80,9 +82,9 @@ void ofApp::update() {
         
         if (whichOne == -1) {
 			cout << "New Eye detected: " << newHostName << " " << newUniqueId << endl;
-            Eye eye = Eye(newHostName, newUniqueId);
+			whichOne = eyes.size();
+			Eye eye = Eye(newHostName, newUniqueId, whichOne);
             eyes.push_back(eye);
-            whichOne = eyes.size()-1;
         }
         
         if (msg.getAddress() == "/blob") {
@@ -94,24 +96,41 @@ void ofApp::update() {
             eyes[whichOne].addBlob(index, x, y, msg_timestamp, timestamp);
         } else if (msg.getAddress() == "/video") {
             ofBuffer buffer = msg.getArgAsBlob(2);
+			ofImage image;
+			image.allocate(640, 480, OF_IMAGE_GRAYSCALE);
+			image.load(buffer);
             int msg_timestamp = msg.getArgAsInt32(3);
             
-            eyes[whichOne].addVideo(buffer, msg_timestamp, timestamp);
+            eyes[whichOne].addVideo(image, msg_timestamp, timestamp);
         }
     }
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
-    ofBackground(0);
+	if (debug) {
+		ofBackground(0);
 
-    for (int i=0; i<eyes.size(); i++) {
-        for (int j=0; j<eyes[i].videos.size(); j++) {
-            eyes[i].videos[j].image.draw(0,0);
-        }
-    }
-    
-    if (debug) {
+		for (int i=0; i<eyes.size(); i++) {
+			for (int j=0; j<eyes[i].videos.size(); j++) {
+				eyes[i].videos[j].image.draw(0,0);
+			}
+
+			for (int j = 0; j < eyes[i].blobSequences.size(); j++) {
+				for (int k = 0; k < eyes[i].blobSequences[j].blobs.size(); k++) {
+					float x = eyes[i].blobSequences[j].blobs[k].x * ofGetWidth();
+					float y = eyes[i].blobSequences[j].blobs[k].y * ofGetHeight();
+					int idx = eyes[i].blobSequences[j].blobs[k].index;
+
+					ofSetColor(eyes[i].idColor);
+					ofCircle(x, y, dotSize);
+					ofSetColor(0);
+					string msg = ofToString(idx);
+					ofDrawBitmapString(msg, x - dotSize/2, y + dotSize/2);
+				}
+			}
+		}
+
         stringstream info;
         info << width << "x" << height << " @ " << ofGetFrameRate() << "fps" << " / " << timestamp << "\n";
         ofDrawBitmapStringHighlight(info.str(), 10, 10, ofColor::black, ofColor::yellow);

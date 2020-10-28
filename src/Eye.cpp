@@ -1,13 +1,15 @@
 #include "Eye.h"
 
-Eye::Eye(string _hostName, string _uniqueId) {
+Eye::Eye(string _hostName, string _uniqueId, int _index) {
     hostName = _hostName;
     uniqueId = _uniqueId;
+	index = _index;
+	idColor = ofColor(127 + ofRandom(127), 127 + ofRandom(127), 127 + ofRandom(127));
+	numSamples = 30;
+	numBlobSequences = 200;
 }
 
-void Eye::addBlob(int _index, float _x, float _y, int _timestamp, int _diff_timestamp) {
-    if (blobs.size() > numSamples-1) blobs.erase(blobs.begin());
-    
+void Eye::addBlob(int _index, float _x, float _y, int _timestamp, int _diff_timestamp) {   
     EyeBlob blob = EyeBlob();
     blob.index = _index;
     blob.x = _x;
@@ -16,18 +18,47 @@ void Eye::addBlob(int _index, float _x, float _y, int _timestamp, int _diff_time
     
 	cout << "Blob received, diff " << blob.timestamp << endl;
 
-    blobs.push_back(blob);
+	int whichOne = checkUniqueBlob(blob.index);
+
+	if (whichOne == -1) {
+		cout << "Eye " << index << ", new blob " << whichOne << endl;
+		EyeBlobSequence blobSequence = EyeBlobSequence();
+		whichOne = blob.index;
+		blobSequence.index = whichOne;
+		blobSequences.push_back(blobSequence);
+	}
+
+    blobSequences[whichOne].blobs.push_back(blob);
+	if (blobSequences[whichOne].blobs.size() > numSamples - 1) blobSequences[whichOne].blobs.erase(blobSequences[whichOne].blobs.begin());
+	if (blobSequences.size() > numBlobSequences - 1) blobSequences.erase(blobSequences.begin());
 }
 
-void Eye::addVideo(ofBuffer _buffer, int _timestamp, int _diff_timestamp) {
-    if (videos.size() > numSamples-1) videos.erase(videos.begin());
-    
+int Eye::checkUniqueBlob(int _index) {
+	int idx = -1;
+	for (int i = 0; i < blobSequences.size(); i++) {
+		if (_index == blobSequences[i].index) {
+			idx = i;
+			break;
+		}
+	}
+	return idx;
+}
+
+void Eye::drawBlob() {
+	//
+}
+
+void Eye::addVideo(ofImage _image, int _timestamp, int _diff_timestamp) {   
     EyeVideo video = EyeVideo();
-    video.image.allocate(640, 480, OF_IMAGE_GRAYSCALE);
-    video.image.load(_buffer);
+    video.image = _image;
     video.timestamp = abs(_diff_timestamp - _timestamp);
     
 	cout << "Video received, diff " << video.timestamp << endl;
 
     videos.push_back(video);
+	if (videos.size() > numSamples - 1) videos.erase(videos.begin());
+}
+
+void Eye::drawVideo() {
+	//
 }

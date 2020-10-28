@@ -19,9 +19,9 @@ class ofApp : public ofBaseApp {
 
 		string oscHost;
         int oscPort, oscReceivePort;
-        
-        int timestamp;
-        
+		int timestamp;
+		int dotSize;
+
         bool debug; // draw to local screen, default true
 
         vector<Eye> eyes;
