@@ -11,7 +11,6 @@ class Eye {
         string uniqueId;
         string hostName;
 		int index;
-		
 		int numSamples, numBlobSequences;
 
         struct EyeBlob {
@@ -37,7 +36,7 @@ class Eye {
 		
 		vector<EyeVideo> videos;
 
-		ofColor idColor;
+		ofColor idColor, bgColor;
 
         void addBlob(int _index, float _x, float _y, int _timestamp, int _diff_timestamp);
 		void drawBlob();

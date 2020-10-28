@@ -14,8 +14,9 @@ class ofApp : public ofBaseApp {
         void draw();
             
         int width, height, appFramerate, camFramerate;
-        
-        string uniqueId, hostName;
+		int eyeWidth, eyeHeight, imageWidth, imageHeight, numColumns, numRows;
+
+		string uniqueId, hostName;
 
 		string oscHost;
         int oscPort, oscReceivePort;
@@ -23,6 +24,7 @@ class ofApp : public ofBaseApp {
 		int dotSize;
 
         bool debug; // draw to local screen, default true
+		bool videoEnabled = false;
 
         vector<Eye> eyes;
     

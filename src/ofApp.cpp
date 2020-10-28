@@ -12,11 +12,17 @@ void ofApp::setup() {
 
     appFramerate = settings.getValue("settings:app_framerate", 60);
     camFramerate = settings.getValue("settings:cam_framerate", 30);
-    ofSetFrameRate(appFramerate);
-    
-    width = settings.getValue("settings:width", 640);
-    height = settings.getValue("settings:height", 480);
-    ofSetWindowShape(width, height);
+    ofSetFrameRate(appFramerate);   
+
+	numColumns = 3;
+	numRows = 3;
+	imageWidth = 640;
+	imageHeight = 480;
+	eyeWidth = imageWidth / 2;
+	eyeHeight = imageHeight / 2;
+	width = eyeWidth * numColumns; // settings.getValue("settings:width", 1280);
+	height = eyeHeight * numRows; // settings.getValue("settings:height", 720);
+	ofSetWindowShape(width, height);
 
     debug = (bool) settings.getValue("settings:debug", 1);
 
@@ -73,7 +79,7 @@ void ofApp::update() {
         ofxOscMessage msg;
         receiver.getNextMessage(msg);
 
-		cout << "New OSC message received." << endl;
+		//cout << "New OSC message received." << endl;
 
         string newHostName = msg.getArgAsString(0);
         string newUniqueId = msg.getArgAsString(1);
@@ -84,7 +90,7 @@ void ofApp::update() {
 			cout << "New Eye detected: " << newHostName << " " << newUniqueId << endl;
 			whichOne = eyes.size();
 			Eye eye = Eye(newHostName, newUniqueId, whichOne);
-            eyes.push_back(eye);
+			eyes.push_back(eye);
         }
         
         if (msg.getAddress() == "/blob") {
@@ -94,10 +100,10 @@ void ofApp::update() {
             int msg_timestamp = msg.getArgAsInt32(5);
             
             eyes[whichOne].addBlob(index, x, y, msg_timestamp, timestamp);
-        } else if (msg.getAddress() == "/video") {
+        } else if (msg.getAddress() == "/video" && videoEnabled) {
             ofBuffer buffer = msg.getArgAsBlob(2);
 			ofImage image;
-			image.allocate(640, 480, OF_IMAGE_GRAYSCALE);
+			image.allocate(imageWidth, imageHeight, OF_IMAGE_GRAYSCALE);
 			image.load(buffer);
             int msg_timestamp = msg.getArgAsInt32(3);
             
@@ -112,21 +118,35 @@ void ofApp::draw() {
 		ofBackground(0);
 
 		for (int i=0; i<eyes.size(); i++) {
-			for (int j=0; j<eyes[i].videos.size(); j++) {
-				eyes[i].videos[j].image.draw(0,0);
+			int originX = eyeWidth * (i % numColumns);
+			int originY = eyeHeight * (i / numRows);
+
+			ofSetColor(eyes[i].bgColor);
+			ofRect(eyeWidth * (i % numColumns), eyeHeight * (i / numRows), eyeWidth, eyeHeight);
+
+			if (videoEnabled) {
+				for (int j = 0; j < eyes[i].videos.size(); j++) {
+					eyes[i].videos[j].image.draw(0, 0);
+				}
 			}
 
 			for (int j = 0; j < eyes[i].blobSequences.size(); j++) {
 				for (int k = 0; k < eyes[i].blobSequences[j].blobs.size(); k++) {
-					float x = eyes[i].blobSequences[j].blobs[k].x * ofGetWidth();
-					float y = eyes[i].blobSequences[j].blobs[k].y * ofGetHeight();
-					int idx = eyes[i].blobSequences[j].blobs[k].index;
+					int x = eyes[i].blobSequences[j].blobs[k].x * eyeWidth;
+					int y = eyes[i].blobSequences[j].blobs[k].y * eyeHeight;
+
+					x += originX;
+					y += originY;
+					int idx = eyes[i].blobSequences[j].blobs[k].index;			
 
 					ofSetColor(eyes[i].idColor);
 					ofCircle(x, y, dotSize);
-					ofSetColor(0);
+					
+					ofSetColor(eyes[i].bgColor);
 					string msg = ofToString(idx);
-					ofDrawBitmapString(msg, x - dotSize/2, y + dotSize/2);
+					ofDrawBitmapString(msg, x - dotSize / 2, y + dotSize / 2);
+
+					ofDrawBitmapStringHighlight(eyes[i].hostName, originX, originY + eyeHeight, ofColor::black, ofColor::yellow);
 				}
 			}
 		}

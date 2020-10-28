@@ -4,7 +4,13 @@ Eye::Eye(string _hostName, string _uniqueId, int _index) {
     hostName = _hostName;
     uniqueId = _uniqueId;
 	index = _index;
-	idColor = ofColor(127 + ofRandom(127), 127 + ofRandom(127), 127 + ofRandom(127));
+
+	float r = ofRandom(127);
+	float g = ofRandom(127);
+	float b = ofRandom(127);
+	idColor = ofColor(r + 127, g + 127, b + 127);
+	bgColor = ofColor(r * 0.8, g * 0.8, b * 0.8);
+	
 	numSamples = 30;
 	numBlobSequences = 200;
 }
@@ -16,7 +22,7 @@ void Eye::addBlob(int _index, float _x, float _y, int _timestamp, int _diff_time
     blob.y = _y;
     blob.timestamp = abs(_diff_timestamp - _timestamp);
     
-	cout << "Blob received, diff " << blob.timestamp << endl;
+	//cout << "Blob received, diff " << blob.timestamp << endl;
 
 	int whichOne = checkUniqueBlob(blob.index);
 
@@ -53,7 +59,7 @@ void Eye::addVideo(ofImage _image, int _timestamp, int _diff_timestamp) {
     video.image = _image;
     video.timestamp = abs(_diff_timestamp - _timestamp);
     
-	cout << "Video received, diff " << video.timestamp << endl;
+	//cout << "Video received, diff " << video.timestamp << endl;
 
     videos.push_back(video);
 	if (videos.size() > numSamples - 1) videos.erase(videos.begin());
