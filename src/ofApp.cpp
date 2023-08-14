@@ -1,7 +1,9 @@
 #include "ofApp.h"
+#include "../../common/src/PinopticonUtils.hpp"
 
 using namespace cv;
 using namespace ofxCv;
+using namespace PinopticonUtils;
 
 //--------------------------------------------------------------
 void ofApp::setup() {
@@ -35,34 +37,13 @@ void ofApp::setup() {
 	dotSize = 10;
 
 	// ~ ~ ~   get a persistent name for this computer   ~ ~ ~
-	// a randomly generated id
 #ifdef TARGET_LINUX_ARM
-	sessionId = "RPi";
-#else
-	sessionId = "";
-#endif
-
-	file.open(ofToDataPath("unique_id.txt"), ofFile::ReadWrite, false);
-    ofBuffer buff;
-    if (file) { // use existing file if it's there
-        buff = file.readToBuffer();
-        sessionId = buff.getText();
-    } else { // otherwise make a new one
-        sessionId += "_" + ofGetTimestampString("%y%m%d%H%M%S%i");
-        ofStringReplace(sessionId, "\n", "");
-        ofStringReplace(sessionId, "\r", "");
-        buff.set(sessionId.c_str(), sessionId.size());
-        ofBufferToFile("unique_id.txt", buff);
-    }
-
-#ifdef TARGET_LINUX_ARM
-    // the actual RPi hostname
     ofSystem("cp /etc/hostname " + ofToDataPath("DocumentRoot/js/"));
-    hostName = ofSystem("cat /etc/hostname");
-    hostName.pop_back(); // last char is \n
+    hostName = getHostName();
 #else
 	hostName = "unknown";
 #endif
+    sessionId = getSessionId();
 
     sender.setup(oscHost, oscPort);
     receiver.setup(oscReceivePort);
@@ -103,8 +84,7 @@ void ofApp::update() {
         } else if (msg.getAddress() == "/video" && videoEnabled) {
             ofBuffer buffer = msg.getArgAsBlob(2);
 			ofImage image;
-			image.allocate(imageWidth, imageHeight, OF_IMAGE_GRAYSCALE);
-			image.load(buffer);
+			bufferToImage(buffer, image, imageWidth, imageHeight, true);
             int msg_timestamp = msg.getArgAsInt32(3);
             
             eyes[whichOne].addVideo(image, msg_timestamp, timestamp);
@@ -161,21 +141,6 @@ void ofApp::draw() {
         info << width << "x" << height << " @ " << ofGetFrameRate() << "fps" << " / " << timestamp << "\n";
         ofDrawBitmapStringHighlight(info.str(), 10, 10, ofColor::black, ofColor::yellow);
     }
-}
-
-void ofApp::sendOscBlobs(int index, float x, float y, float z) {
-    ofxOscMessage m;
-    m.setAddress("/blob");
-
-	m.addStringArg(hostName);
-	m.addStringArg(sessionId);
-    m.addIntArg(index);  
-    m.addFloatArg(x);
-    m.addFloatArg(y);
-    m.addFloatArg(z);
-    m.addIntArg(timestamp);
-
-    sender.sendMessage(m);
 }
 
 int ofApp::checkSessionId(string _sessionId) {

@@ -225,6 +225,7 @@
     <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlparser.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\common\src\PinopticonUtils.hpp" />
     <ClInclude Include="src\ofApp.h" />
     <ClInclude Include="src\Eye.h" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\src\ofxCvBlob.h" />
