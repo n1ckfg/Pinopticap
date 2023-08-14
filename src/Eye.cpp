@@ -1,8 +1,8 @@
 #include "Eye.h"
 
-Eye::Eye(string _hostName, string _uniqueId, int _index) {
+Eye::Eye(string _hostName, string _sessionId, int _index) {
     hostName = _hostName;
-    uniqueId = _uniqueId;
+    sessionId = _sessionId;
 	index = _index;
 
 	float r = ofRandom(127);

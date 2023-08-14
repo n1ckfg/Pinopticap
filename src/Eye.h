@@ -5,10 +5,10 @@
 class Eye {
 
     public:
-        Eye(string _hostName, string _uniqueId, int _index);
+        Eye(string _hostName, string _sessionId, int _index);
         virtual ~Eye(){};
     
-        string uniqueId;
+        string sessionId;
         string hostName;
 		int index;
 		int numSamples, numBlobSequences;

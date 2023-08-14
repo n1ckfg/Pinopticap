@@ -37,21 +37,21 @@ void ofApp::setup() {
 	// ~ ~ ~   get a persistent name for this computer   ~ ~ ~
 	// a randomly generated id
 #ifdef TARGET_LINUX_ARM
-	uniqueId = "RPi";
+	sessionId = "RPi";
 #else
-	uniqueId = "";
+	sessionId = "";
 #endif
 
 	file.open(ofToDataPath("unique_id.txt"), ofFile::ReadWrite, false);
     ofBuffer buff;
     if (file) { // use existing file if it's there
         buff = file.readToBuffer();
-        uniqueId = buff.getText();
+        sessionId = buff.getText();
     } else { // otherwise make a new one
-        uniqueId += "_" + ofGetTimestampString("%y%m%d%H%M%S%i");
-        ofStringReplace(uniqueId, "\n", "");
-        ofStringReplace(uniqueId, "\r", "");
-        buff.set(uniqueId.c_str(), uniqueId.size());
+        sessionId += "_" + ofGetTimestampString("%y%m%d%H%M%S%i");
+        ofStringReplace(sessionId, "\n", "");
+        ofStringReplace(sessionId, "\r", "");
+        buff.set(sessionId.c_str(), sessionId.size());
         ofBufferToFile("unique_id.txt", buff);
     }
 
@@ -82,14 +82,14 @@ void ofApp::update() {
 		//cout << "New OSC message received." << endl;
 
         string newHostName = msg.getArgAsString(0);
-        string newUniqueId = msg.getArgAsString(1);
+        string newsessionId = msg.getArgAsString(1);
         
-        int whichOne = checkUniqueId(newUniqueId);
+        int whichOne = checkSessionId(newsessionId);
         
         if (whichOne == -1) {
-			cout << "New Eye detected: " << newHostName << " " << newUniqueId << endl;
+			cout << "New Eye detected: " << newHostName << " " << newsessionId << endl;
 			whichOne = eyes.size();
-			Eye eye = Eye(newHostName, newUniqueId, whichOne);
+			Eye eye = Eye(newHostName, newsessionId, whichOne);
 			eyes.push_back(eye);
         }
         
@@ -162,7 +162,7 @@ void ofApp::sendOscBlobs(int index, float x, float y, float z) {
     m.setAddress("/blob");
 
 	m.addStringArg(hostName);
-	m.addStringArg(uniqueId);
+	m.addStringArg(sessionId);
     m.addIntArg(index);  
     m.addFloatArg(x);
     m.addFloatArg(y);
@@ -172,10 +172,10 @@ void ofApp::sendOscBlobs(int index, float x, float y, float z) {
     sender.sendMessage(m);
 }
 
-int ofApp::checkUniqueId(string _uniqueId) {
+int ofApp::checkSessionId(string _sessionId) {
     int idx = -1;
     for (int i=0; i<eyes.size(); i++) {
-        if (_uniqueId == eyes[i].uniqueId) {
+        if (_sessionId == eyes[i].sessionId) {
             idx = i;
             break;
         }

@@ -16,7 +16,7 @@ class ofApp : public ofBaseApp {
         int width, height, appFramerate, camFramerate;
 		int eyeWidth, eyeHeight, imageWidth, imageHeight, numColumns, numRows;
 
-		string uniqueId, hostName;
+		string sessionId, hostName;
 
 		string oscHost;
         int oscPort, oscReceivePort;
@@ -35,6 +35,6 @@ class ofApp : public ofBaseApp {
         ofxOscReceiver receiver;
         void sendOscBlobs(int index, float x, float y, float z);
         
-        int checkUniqueId(string _uniqueId);
+        int checkSessionId(string _sessionId);
     
 };
