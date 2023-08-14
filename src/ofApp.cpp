@@ -117,6 +117,12 @@ void ofApp::draw() {
 	if (debug) {
 		ofBackground(0);
 
+        cam.begin();
+        ofEnableDepthTest();
+        ofDrawGrid(20, 10, true, true, true, true);
+        ofDisableDepthTest();
+        cam.end();
+
 		for (int i=0; i<eyes.size(); i++) {
 			int originX = eyeWidth * (i % numColumns);
 			int originY = eyeHeight * (i / numRows);

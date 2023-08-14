@@ -36,5 +36,7 @@ class ofApp : public ofBaseApp {
         void sendOscBlobs(int index, float x, float y, float z);
         
         int checkSessionId(string _sessionId);
-    
+        
+        ofEasyCam cam; // add mouse controls for camera movement
+
 };
