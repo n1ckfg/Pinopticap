@@ -18,10 +18,10 @@ void ofApp::setup() {
 
 	numColumns = 3;
 	numRows = 3;
-	imageWidth = 640;
-	imageHeight = 480;
-	eyeWidth = imageWidth / 2;
-	eyeHeight = imageHeight / 2;
+	thumbWidth = 120;
+	thumbHeight = 90;
+	eyeWidth = 320;
+	eyeHeight = 240;
 	width = eyeWidth * numColumns; // settings.getValue("settings:width", 1280);
 	height = eyeHeight * numRows; // settings.getValue("settings:height", 720);
 	ofSetWindowShape(width, height);
@@ -52,7 +52,7 @@ void ofApp::setup() {
 
 //--------------------------------------------------------------
 void ofApp::update() {
-    timestamp = (int) ofGetSystemTimeMillis();
+    timestamp = getTimestamp();
     
     // check for waiting messages
     while (receiver.hasWaitingMessages()) {
@@ -60,20 +60,22 @@ void ofApp::update() {
         ofxOscMessage msg;
         receiver.getNextMessage(msg);
 
-		//cout << "New OSC message received." << endl;
-
         string newHostName = msg.getArgAsString(0);
-        string newsessionId = msg.getArgAsString(1);
-        
-        int whichOne = checkSessionId(newsessionId);
-        
+        string newSessionId = msg.getArgAsString(1);
+
+        int whichOne = checkHostName(newHostName);
+        //int whichOne = checkSessionId(newsessionId);
+
         if (whichOne == -1) {
-			cout << "New Eye detected: " << newHostName << " " << newsessionId << endl;
+			cout << "New Eye detected: " << newHostName << " " << newSessionId << endl;
 			whichOne = eyes.size();
-			Eye eye = Eye(newHostName, newsessionId, whichOne);
+			Eye eye = Eye(newHostName, newSessionId, whichOne);
 			eyes.push_back(eye);
         }
         
+        Eye eye = eyes[whichOne];
+        //cout << "New OSC message " << msg.getAddress() << " received from " << eye.hostName << " " << eye.sessionId << endl;
+
         if (msg.getAddress() == "/blob") {
             int index = msg.getArgAsInt32(2);
             float x = msg.getArgAsFloat(3);
@@ -83,11 +85,22 @@ void ofApp::update() {
             eyes[whichOne].addBlob(index, x, y, msg_timestamp, timestamp);
         } else if (msg.getAddress() == "/video" && videoEnabled) {
             ofBuffer buffer = msg.getArgAsBlob(2);
-			ofImage image;
-			bufferToImage(buffer, image, imageWidth, imageHeight, true);
+            ofImage image;
+            bufferToImage(buffer, image, thumbWidth, thumbHeight, false);
+            //cout << "Received image " << image.getWidth() << "x" << image.getHeight() << endl;
             int msg_timestamp = msg.getArgAsInt32(3);
-            
+
             eyes[whichOne].addVideo(image, msg_timestamp, timestamp);
+        } else if (msg.getAddress() == "/contour") {
+            /*
+            ofBuffer buffer = msg.getArgAsBlob(2);
+            ofImage image;
+            bufferToImage(buffer, image, imageWidth, imageHeight, true);
+            cout << "Received image " << image.getWidth() << "x" << image.getHeight() << endl;
+            int msg_timestamp = msg.getArgAsInt32(3);
+
+            eyes[whichOne].addVideo(image, msg_timestamp, timestamp);
+            */
         }
     }
 }
@@ -108,12 +121,10 @@ void ofApp::draw() {
 			int originY = eyeHeight * (i / numRows);
 
 			ofSetColor(eyes[i].bgColor);
-			ofRect(eyeWidth * (i % numColumns), eyeHeight * (i / numRows), eyeWidth, eyeHeight);
+			ofRect(originX, originY, eyeWidth, eyeHeight);
 
 			if (videoEnabled) {
-				for (int j = 0; j < eyes[i].videos.size(); j++) {
-					eyes[i].videos[j].image.draw(0, 0);
-				}
+				eyes[i].drawVideo(originX, originY, eyeWidth, eyeHeight);
 			}
 
 			for (int j = 0; j < eyes[i].blobSequences.size(); j++) {
@@ -154,3 +165,13 @@ int ofApp::checkSessionId(string _sessionId) {
     return idx;
 }
 
+int ofApp::checkHostName(string _hostName) {
+    int idx = -1;
+    for (int i = 0; i < eyes.size(); i++) {
+        if (_hostName == eyes[i].hostName) {
+            idx = i;
+            break;
+        }
+    }
+    return idx;
+}

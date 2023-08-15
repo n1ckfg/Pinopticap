@@ -43,7 +43,7 @@ class Eye {
 		int checkUniqueBlob(int _index);
 
 		void addVideo(ofImage _image, int _timestamp, int _diff_timestamp);
-		void drawVideo();
+		void drawVideo(int x, int y, int w, int h);
 
 };
 

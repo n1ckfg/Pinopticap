@@ -14,7 +14,7 @@ class ofApp : public ofBaseApp {
         void draw();
             
         int width, height, appFramerate, camFramerate;
-		int eyeWidth, eyeHeight, imageWidth, imageHeight, numColumns, numRows;
+		int eyeWidth, eyeHeight, thumbWidth, thumbHeight, numColumns, numRows;
 
 		string sessionId, hostName;
 
@@ -24,7 +24,7 @@ class ofApp : public ofBaseApp {
 		int dotSize;
 
         bool debug; // draw to local screen, default true
-		bool videoEnabled = false;
+		bool videoEnabled = true;
 
         vector<Eye> eyes;
     
@@ -36,7 +36,8 @@ class ofApp : public ofBaseApp {
         void sendOscBlobs(int index, float x, float y, float z);
         
         int checkSessionId(string _sessionId);
-        
+        int checkHostName(string _hostName);
+
         ofEasyCam cam; // add mouse controls for camera movement
 
 };

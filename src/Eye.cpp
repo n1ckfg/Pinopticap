@@ -62,9 +62,9 @@ void Eye::addVideo(ofImage _image, int _timestamp, int _diff_timestamp) {
 	//cout << "Video received, diff " << video.timestamp << endl;
 
     videos.push_back(video);
-	if (videos.size() > numSamples - 1) videos.erase(videos.begin());
+	if (videos.size() > numSamples) videos.erase(videos.begin());
 }
 
-void Eye::drawVideo() {
-	//
+void Eye::drawVideo(int x, int y, int w, int h) {
+	if (videos.size() > 0) videos[videos.size() - 1].image.draw(x, y, w, h);
 }
