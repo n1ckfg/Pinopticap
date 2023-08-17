@@ -1,5 +1,5 @@
 Pinopticap
-Copyright (c) 2020 Nick Fox-Gieg
+Copyright (c) 2023 Nick Fox-Gieg
 https://fox-gieg.com
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
