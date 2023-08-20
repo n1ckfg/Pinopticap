@@ -1,9 +1,9 @@
 #include "ofApp.h"
-#include "../../common/src/PinopticonUtils.hpp"
+#include "../../common/src/Pinopticon.hpp"
 
 using namespace cv;
 using namespace ofxCv;
-using namespace PinopticonUtils;
+using namespace Pinopticon;
 
 //--------------------------------------------------------------
 void ofApp::setup() {
