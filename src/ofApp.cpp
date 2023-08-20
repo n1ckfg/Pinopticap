@@ -67,13 +67,19 @@ void ofApp::update() {
         //int whichOne = checkSessionId(newsessionId);
 
         if (whichOne == -1) {
-			cout << "New Eye detected: " << newHostName << " " << newSessionId << endl;
 			whichOne = eyes.size();
 			Eye eye = Eye(newHostName, newSessionId, whichOne);
 			eyes.push_back(eye);
+            cout << "New Eye detected: " << newHostName << " " << newSessionId << endl;
         }
         
         Eye eye = eyes[whichOne];
+
+        if (eye.sessionId != newSessionId) {
+            eyes[whichOne].sessionId = newSessionId;
+            cout << "Eye reconnected: " << eye.hostName << " " << eye.sessionId << endl;
+        }
+
         //cout << "New OSC message " << msg.getAddress() << " received from " << eye.hostName << " " << eye.sessionId << endl;
 
         if (msg.getAddress() == "/blob") {

@@ -45,5 +45,8 @@ class Eye {
 		void addVideo(ofImage _image, int _timestamp, int _diff_timestamp);
 		void drawVideo(int x, int y, int w, int h);
 
+        void addContour();
+        void drawContour();
+
 };
 

@@ -69,3 +69,11 @@ void Eye::drawVideo(int x, int y, int w, int h) {
 	ofSetColor(255);
 	if (videos.size() > 0) videos[videos.size() - 1].image.draw(x, y, w, h);
 }
+
+void Eye::addContour() {
+	// TODO
+}
+
+void Eye::drawContour() {
+	// TODO
+}
