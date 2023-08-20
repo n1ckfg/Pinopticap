@@ -38,6 +38,10 @@ class Eye {
 
 		ofColor idColor, bgColor;
 
+        Poco::Net::WebSocket wsClient;
+        int wsPort;
+        bool useWs;
+
         void addBlob(int _index, float _x, float _y, int _timestamp, int _diff_timestamp);
 		void drawBlob();
 		int checkUniqueBlob(int _index);

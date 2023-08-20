@@ -1,4 +1,9 @@
 #include "Eye.h"
+#include "../../common/src/Pinopticon.hpp"
+#include "../../common/src/Pinopticon_Http.hpp"
+#include "../../common/src/Pinopticon_Osc.hpp"
+
+using namespace Pinopticon;
 
 Eye::Eye(string _hostName, string _sessionId, int _index) {
     hostName = _hostName;
@@ -13,6 +18,8 @@ Eye::Eye(string _hostName, string _sessionId, int _index) {
 	
 	numSamples = 30;
 	numBlobSequences = 200;
+
+	useWs = setupWsClient(wsClient, hostName + ".local", wsPort);
 }
 
 void Eye::addBlob(int _index, float _x, float _y, int _timestamp, int _diff_timestamp) {   

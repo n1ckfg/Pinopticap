@@ -1,5 +1,7 @@
 #include "ofApp.h"
 #include "../../common/src/Pinopticon.hpp"
+#include "../../common/src/Pinopticon_Http.hpp"
+#include "../../common/src/Pinopticon_Osc.hpp"
 
 using namespace cv;
 using namespace ofxCv;
@@ -29,9 +31,14 @@ void ofApp::setup() {
     debug = (bool) settings.getValue("settings:debug", 1);
 
     oscHost = settings.getValue("settings:osc_host", "127.0.0.1");
-    oscPort = settings.getValue("settings:osc_port", 7114);
+    oscSendPort = settings.getValue("settings:osc_send_port", 7114);
     oscReceivePort = settings.getValue("settings:osc_receive_port", 7110);
  
+    sendOsc = (bool)settings.getValue("settings:send_osc", 1);
+    sendWs = (bool)settings.getValue("settings:send_ws", 1);
+    sendHttp = (bool)settings.getValue("settings:send_http", 1);
+    sendMjpeg = (bool)settings.getValue("settings:send_mjpeg", 1);
+
     debug = (bool) settings.getValue("settings:debug", 1);
 
 	dotSize = 10;
@@ -45,9 +52,22 @@ void ofApp::setup() {
 #endif
     sessionId = getSessionId();
 
-    sender.setup(oscHost, oscPort);
-    receiver.setup(oscReceivePort);
-    cout << "Using OSC." << endl;
+    // * stream video *
+    int maxClientConnections = settings.getValue("settings:max_stream_connections", 5); // default 5
+    int maxClientBitRate = settings.getValue("settings:max_stream_bitrate", 512); // default 1024
+    int maxClientFrameRate = settings.getValue("settings:max_stream_framerate", 30); // default 30
+    int maxClientQueueSize = settings.getValue("settings:max_stream_queue", 10); // default 10
+    setupMjpeg(streamServer, streamPort, maxClientConnections, maxClientBitRate, maxClientFrameRate, maxClientQueueSize, width, height, "live_view.html");
+
+    // * post form *
+    setupHttp(this, postServer, postPort, "result.html");
+
+    // * websockets *
+    // events: connect, open, close, idle, message, broadcast
+    setupWsServer(this, wsServer, wsPort);
+
+    setupOscSender(sender, oscHost, oscSendPort);
+    setupOscReceiver(receiver, oscReceivePort);
 }
 
 //--------------------------------------------------------------
@@ -180,4 +200,34 @@ int ofApp::checkHostName(string _hostName) {
         }
     }
     return idx;
+}
+
+void ofApp::onWebSocketOpenEvent(ofxHTTP::WebSocketEventArgs& evt) {
+    cout << "Websocket connection opened." << evt.connection().clientAddress().toString() << endl;
+}
+
+void ofApp::onWebSocketCloseEvent(ofxHTTP::WebSocketCloseEventArgs& evt) {
+    cout << "Websocket connection closed." << evt.connection().clientAddress().toString() << endl;
+}
+
+void ofApp::onWebSocketFrameReceivedEvent(ofxHTTP::WebSocketFrameEventArgs& evt) {
+    cout << "Websocket frame was received:" << evt.connection().clientAddress().toString() << endl;
+    string msg = evt.frame().getText();
+    cout << msg << endl;
+
+    if (msg == "take_photo") {
+        //takePhoto();
+    }
+    else if (msg == "stream_photo") {
+        //streamPhoto();
+    }
+}
+
+void ofApp::onWebSocketFrameSentEvent(ofxHTTP::WebSocketFrameEventArgs& evt) {
+    cout << "Websocket frame was sent." << endl;
+}
+
+
+void ofApp::onWebSocketErrorEvent(ofxHTTP::WebSocketErrorEventArgs& evt) {
+    cout << "Websocket Error." << evt.connection().clientAddress().toString() << endl;
 }
