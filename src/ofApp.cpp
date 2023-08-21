@@ -1,7 +1,4 @@
 #include "ofApp.h"
-#include "../../common/src/Pinopticon.hpp"
-#include "../../common/src/Pinopticon_Http.hpp"
-#include "../../common/src/Pinopticon_Osc.hpp"
 
 using namespace cv;
 using namespace ofxCv;
@@ -217,8 +214,7 @@ void ofApp::onWebSocketFrameReceivedEvent(ofxHTTP::WebSocketFrameEventArgs& evt)
 
     if (msg == "take_photo") {
         //takePhoto();
-    }
-    else if (msg == "stream_photo") {
+    } else if (msg == "stream_photo") {
         //streamPhoto();
     }
 }
@@ -230,4 +226,44 @@ void ofApp::onWebSocketFrameSentEvent(ofxHTTP::WebSocketFrameEventArgs& evt) {
 
 void ofApp::onWebSocketErrorEvent(ofxHTTP::WebSocketErrorEventArgs& evt) {
     cout << "Websocket Error." << evt.connection().clientAddress().toString() << endl;
+}
+
+// ~ ~ ~ POST ~ ~ ~
+void ofApp::onHTTPPostEvent(ofxHTTP::PostEventArgs& args) {
+    ofLogNotice("ofApp::onHTTPPostEvent") << "Data: " << args.getBuffer().getText();
+
+    //takePhoto();
+}
+
+
+void ofApp::onHTTPFormEvent(ofxHTTP::PostFormEventArgs& args) {
+    ofLogNotice("ofApp::onHTTPFormEvent") << "";
+    ofxHTTP::HTTPUtils::dumpNameValueCollection(args.getForm(), ofGetLogLevel());
+
+    //takePhoto();
+}
+
+
+void ofApp::onHTTPUploadEvent(ofxHTTP::PostUploadEventArgs& args) {
+    std::string stateString = "";
+
+    switch (args.getState()) {
+    case ofxHTTP::PostUploadEventArgs::UPLOAD_STARTING:
+        stateString = "STARTING";
+        break;
+    case ofxHTTP::PostUploadEventArgs::UPLOAD_PROGRESS:
+        stateString = "PROGRESS";
+        break;
+    case ofxHTTP::PostUploadEventArgs::UPLOAD_FINISHED:
+        stateString = "FINISHED";
+        break;
+    }
+
+    ofLogNotice("ofApp::onHTTPUploadEvent") << "";
+    ofLogNotice("ofApp::onHTTPUploadEvent") << "         state: " << stateString;
+    ofLogNotice("ofApp::onHTTPUploadEvent") << " formFieldName: " << args.getFormFieldName();
+    ofLogNotice("ofApp::onHTTPUploadEvent") << "orig. filename: " << args.getOriginalFilename();
+    ofLogNotice("ofApp::onHTTPUploadEvent") << "     filename: " << args.getFilename();
+    ofLogNotice("ofApp::onHTTPUploadEvent") << "     fileType: " << args.getFileType().toString();
+    ofLogNotice("ofApp::onHTTPUploadEvent") << "# bytes xfer'd: " << args.getNumBytesTransferred();
 }

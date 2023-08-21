@@ -1,6 +1,16 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxCv.h"
+#include "ofxOsc.h"
+#include "ofxXmlSettings.h"
+#include "ofxHTTP.h"
+#include "ofxJSONElement.h"
+#include "ofxCrypto.h"
+
+#include "../../common/src/Pinopticon.hpp"
+#include "../../common/src/Pinopticon_Http.hpp"
+#include "../../common/src/Pinopticon_Osc.hpp"
 
 class Eye {
 
@@ -37,10 +47,6 @@ class Eye {
 		vector<EyeVideo> videos;
 
 		ofColor idColor, bgColor;
-
-        Poco::Net::WebSocket wsClient;
-        int wsPort;
-        bool useWs;
 
         void addBlob(int _index, float _x, float _y, int _timestamp, int _diff_timestamp);
 		void drawBlob();
