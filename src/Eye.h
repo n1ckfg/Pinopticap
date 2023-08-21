@@ -19,6 +19,9 @@ class Eye {
 		int index;
 		int numSamples, numBlobSequences;
 
+        Poco::Net::WebSocket* wsClient;
+        void wsClientConnect(string hostName, int wsPort);
+
         struct EyeBlob {
             int index;
             float x;
@@ -43,6 +46,9 @@ class Eye {
 		vector<EyeVideo> videos;
 
 		ofColor idColor, bgColor;
+
+        void update();
+        void draw();
 
         void addBlob(int _index, float _x, float _y, int _timestamp, int _diff_timestamp);
 		void drawBlob();

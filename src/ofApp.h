@@ -16,6 +16,7 @@ class ofApp : public ofBaseApp {
         void setup();
         void update();
         void draw();
+        void exit();
             
         int width, height, appFramerate, camFramerate;
 		int eyeWidth, eyeHeight, thumbWidth, thumbHeight, numColumns, numRows;

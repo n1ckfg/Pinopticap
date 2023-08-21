@@ -32,8 +32,11 @@ void ofApp::setup() {
     debug = (bool) settings.getValue("settings:debug", 1);
 
     oscHost = settings.getValue("settings:osc_host", "127.0.0.1");
-    oscSendPort = settings.getValue("settings:osc_send_port", 7114);
     oscReceivePort = settings.getValue("settings:osc_receive_port", 7110);
+    streamPort = settings.getValue("settings:stream_port", 7111);
+    wsPort = settings.getValue("settings:ws_port", 7112);
+    postPort = settings.getValue("settings:post_port", 7113);
+    oscSendPort = settings.getValue("settings:osc_send_port", 7114);
  
     sendOsc = (bool)settings.getValue("settings:send_osc", 1);
     sendWs = (bool)settings.getValue("settings:send_ws", 1);
@@ -91,6 +94,8 @@ void ofApp::update() {
 			whichOne = eyes.size();
 			Eye eye = Eye(newHostName, newSessionId, whichOne);
 			eyes.push_back(eye);
+            eyes[whichOne].wsClientConnect(eye.hostName, wsPort);
+
             cout << "New Eye detected: " << newHostName << " " << newSessionId << endl;
         }
         
@@ -98,6 +103,8 @@ void ofApp::update() {
 
         if (eye.sessionId != newSessionId) {
             eyes[whichOne].sessionId = newSessionId;
+            eyes[whichOne].wsClientConnect(eye.hostName, wsPort);
+
             cout << "Eye reconnected: " << eye.hostName << " " << eye.sessionId << endl;
         }
 
@@ -169,15 +176,21 @@ void ofApp::draw() {
 					ofSetColor(eyes[i].bgColor);
 					string msg = ofToString(idx);
 					ofDrawBitmapString(msg, x - dotSize / 2, y + dotSize / 2);
-
-					ofDrawBitmapStringHighlight(eyes[i].hostName, originX, originY + eyeHeight, ofColor::black, ofColor::yellow);
 				}
 			}
-		}
+
+            ofDrawBitmapStringHighlight(eyes[i].hostName, originX, originY + eyeHeight, ofColor::black, ofColor::yellow);
+        }
 
         stringstream info;
         info << width << "x" << height << " @ " << ofGetFrameRate() << "fps" << " / " << timestamp << "\n";
         ofDrawBitmapStringHighlight(info.str(), 10, 10, ofColor::black, ofColor::yellow);
+    }
+}
+
+void ofApp::exit() {
+    for (int i = 0; i < eyes.size(); i++) {
+        eyes[i].wsClient -> close();
     }
 }
 

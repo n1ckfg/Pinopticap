@@ -2,6 +2,9 @@
 <settings>
     <osc_host>BrazilV.local</osc_host>
     <osc_receive_port>7110</osc_receive_port>
+    <stream_port>7111</stream_port>
+    <ws_port>7112</ws_port>
+    <post_port>7113</post_port>
     <osc_send_port>7114</osc_send_port>
     <!-- * -->
     <app_framerate>60</app_framerate>

@@ -15,6 +15,30 @@ Eye::Eye(string _hostName, string _sessionId, int _index) {
 	numBlobSequences = 200;
 }
 
+void Eye::update() {
+
+}
+
+void Eye::draw() {
+
+}
+
+void Eye::wsClientConnect(string hostName, int wsPort) {
+	string wsName = hostName + ".local";
+	Poco::Net::HTTPClientSession websocket(wsName, wsPort);
+	Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_GET, "/?encoding=text", Poco::Net::HTTPMessage::HTTP_1_1);
+	request.set("origin", "http://www.websocket.org");
+	Poco::Net::HTTPResponse response;
+
+	try {
+		cout << "\nWebsocket client connecting to " + wsName << " on port " << wsPort << "..." << endl;
+		wsClient = new Poco::Net::WebSocket(websocket, request, response);
+		cout << "\nWebsocket client successfully connected to " + wsName << " on port " << wsPort << endl;
+	} catch (std::exception& e) {
+		cout << "Exception: " << e.what() << endl;
+	}
+}
+
 void Eye::addBlob(int _index, float _x, float _y, int _timestamp, int _diff_timestamp) {   
     EyeBlob blob = EyeBlob();
     blob.index = _index;
