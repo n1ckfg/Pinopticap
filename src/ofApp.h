@@ -8,10 +8,6 @@
 #include "ofxJSONElement.h"
 #include "ofxCrypto.h"
 
-#include "../../common/src/Pinopticon.hpp"
-#include "../../common/src/Pinopticon_Http.hpp"
-#include "../../common/src/Pinopticon_Osc.hpp"
-
 #include "Eye.h"
 
 class ofApp : public ofBaseApp {
