@@ -27,12 +27,24 @@ void Eye::wsClientConnect(string hostName, int wsPort) {
 	string wsName = hostName + ".local";
 	Poco::Net::HTTPClientSession websocket(wsName, wsPort);
 	Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_GET, "/?encoding=text", Poco::Net::HTTPMessage::HTTP_1_1);
-	request.set("origin", "http://www.websocket.org");
+	request.set("origin", "http://" + wsName);
 	Poco::Net::HTTPResponse response;
 
 	try {
 		cout << "\nWebsocket client connecting to " + wsName << " on port " << wsPort << "..." << endl;
 		wsClient = new Poco::Net::WebSocket(websocket, request, response);
+		
+		char const* testStr = "Hello echo websocket!";
+		char receiveBuff[256];
+
+		int len = wsClient->sendFrame(testStr, strlen(testStr), Poco::Net::WebSocket::FRAME_TEXT);
+		std::cout << "Sent bytes " << len << std::endl;
+		int flags = 0;
+
+		int rlen = wsClient->receiveFrame(receiveBuff, 256, flags);
+		std::cout << "Received bytes " << rlen << std::endl;
+		std::cout << receiveBuff << std::endl;
+
 		cout << "\nWebsocket client successfully connected to " + wsName << " on port " << wsPort << endl;
 	} catch (std::exception& e) {
 		cout << "Exception: " << e.what() << endl;
