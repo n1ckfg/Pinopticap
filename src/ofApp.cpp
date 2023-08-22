@@ -34,7 +34,8 @@ void ofApp::setup() {
     oscHost = settings.getValue("settings:osc_host", "127.0.0.1");
     oscReceivePort = settings.getValue("settings:osc_receive_port", 7110);
     streamPort = settings.getValue("settings:stream_port", 7111);
-    wsPort = settings.getValue("settings:ws_port", 7112);
+    wsClientPort = settings.getValue("settings:ws_client_port", 7112);
+    wsServerPort = settings.getValue("settings:ws_server_port", 7114);
     postPort = settings.getValue("settings:post_port", 7113);
     oscSendPort = settings.getValue("settings:osc_send_port", 7114);
  
@@ -68,7 +69,7 @@ void ofApp::setup() {
 
     // * websockets *
     // events: connect, open, close, idle, message, broadcast
-    setupWsServer(this, wsServer, wsPort);
+    setupWsServer(this, wsServer, wsServerPort);
 
     setupOscSender(sender, oscHost, oscSendPort);
     setupOscReceiver(receiver, oscReceivePort);
@@ -94,7 +95,7 @@ void ofApp::update() {
 			whichOne = eyes.size();
 			Eye eye = Eye(newHostName, newSessionId, whichOne);
 			eyes.push_back(eye);
-            eyes[whichOne].wsClientConnect(eye.hostName, wsPort);
+            eyes[whichOne].wsClientConnect(eye.hostName, wsClientPort);
 
             cout << "New Eye detected: " << newHostName << " " << newSessionId << endl;
         }
@@ -103,7 +104,7 @@ void ofApp::update() {
 
         if (eye.sessionId != newSessionId) {
             eyes[whichOne].sessionId = newSessionId;
-            eyes[whichOne].wsClientConnect(eye.hostName, wsPort);
+            eyes[whichOne].wsClientConnect(eye.hostName, wsClientPort);
 
             cout << "Eye reconnected: " << eye.hostName << " " << eye.sessionId << endl;
         }

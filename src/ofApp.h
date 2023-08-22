@@ -24,7 +24,7 @@ class ofApp : public ofBaseApp {
 		string sessionId, hostName;
 
 		string oscHost;
-        int oscSendPort, oscReceivePort, streamPort, wsPort, postPort;
+        int oscSendPort, oscReceivePort, streamPort, wsClientPort, wsServerPort, postPort;
         int timestamp;
 		int dotSize;
 
