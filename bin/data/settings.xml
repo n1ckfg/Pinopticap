@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <settings>
-    <osc_host>BrazilV.local</osc_host>
+    <osc_host>Example.local</osc_host>
     <osc_receive_port>7110</osc_receive_port>
     <stream_port>7111</stream_port>
     <ws_client_port>7112</ws_client_port>
