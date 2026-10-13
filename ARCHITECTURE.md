@@ -305,6 +305,8 @@ Pinopticap/
 │   ├── ofApp.cpp            # Main application loop, OSC ingestion, and UI rendering
 │   ├── Eye.h                # Eye node model and blob history header
 │   └── Eye.cpp              # Eye implementation, WebSocket client, and buffer management
+├── tools/
+│   └── camera_sim/          # Simulated camera array sending OSC /blob from a shared 3D scene
 ├── docs/
 │   └── images/              # Documentation assets and logos
 ├── Pinopticap.xcodeproj/     # Apple macOS Xcode project files
