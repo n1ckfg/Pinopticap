@@ -1,0 +1,13 @@
+                                           | any 2+               | majority              
+config                             indices |  blobs   real  ghost |  blobs   real  ghost
+cube_3cams_consistent                  480 |    480    480      0 |    480    480      0
+cube_3cams_raster                      480 |    371    211    160 |    371    211    160
+cube_3cams_shuffled                    480 |    148     63     85 |    148     63     85
+cube_9cams_consistent                  480 |    480    480      0 |    480    480      0
+cube_9cams_raster                      480 |     93     93      0 |     93     93      0
+cube_9cams_shuffled                    480 |      0      0      0 |      0      0      0
+cube_24cams_consistent                 480 |    480    480      0 |    480    480      0
+cube_24cams_raster                     480 |     70     70      0 |     70     70      0
+cube_24cams_shuffled                   480 |      0      0      0 |      0      0      0
+cube_9cams_consistent_dropout30        480 |    480    480      0 |    480    480      0
+cloud32_9cams_raster                  1920 |    335    251     84 |    335    251     84

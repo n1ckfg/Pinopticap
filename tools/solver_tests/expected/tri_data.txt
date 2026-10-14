@@ -1,0 +1,30 @@
+loaded 9 eyes from ring9.json: cam00.sim cam01.sim cam02.sim ...
+loaded 12 eyes from random12_distorted.json: cam00.sim cam01.sim cam02.sim ...
+loaded 16 eyes from dome16_cloud_noise1.json: cam00.sim cam01.sim cam02.sim ...
+loaded 12 eyes from random12_noise1_unsync.json: cam00.sim cam01.sim cam02.sim ...
+loaded 6 eyes from ring6_unsync_spin180.json: cam00.sim cam01.sim cam02.sim ...
+loaded 5 eyes from real_opensfm.json: nfg-rpi-0-1 nfg-rpi-3-1 nfg-rpi-3-2 ...
+
+group                               cases  none   rays in rays used max |x-ref| rms |x-truth| failed
+ring9/ungated                         320     0      2880      2880     1.2e-15    3.12e-08 0
+ring9/1deg                            320     0      2880      2880     1.2e-15    3.12e-08 0
+ring9/one_eye_mislabelled             320     0      2880      2560    1.35e-15    3.48e-08 0
+ring9/two_eyes_different_points       320   296       640        48        4.97        3.15 0
+random12_distorted/ungated            320     0      3800      3800    3.35e-11    2.56e-08 0
+random12_distorted/1deg               320     0      3800      3800    3.35e-11    2.56e-08 0
+random12_distorted/one_eye_mislabelled    320     0      3800      3480    3.64e-11    2.81e-08 0
+random12_distorted/two_eyes_different_points    320   301       640        38        1.49        1.18 0
+dome16_cloud_noise1/ungated           640     0     10240     10240    8.78e-16     0.00288 0
+dome16_cloud_noise1/1deg              640     0     10240     10240    8.78e-16     0.00288 0
+random12_noise1_unsync/ungated        320     0      3800      3800    9.01e-16     0.00352 0
+random12_noise1_unsync/1deg           320     0      3800      3800    9.01e-16     0.00352 0
+ring6_unsync_spin180/ungated          320     0      1920      1920    1.22e-15     0.00826 0
+ring6_unsync_spin180/1deg             320     0      1920      1920    1.22e-15     0.00826 0
+real_opensfm_file_via_cv2            1138     0      5462      5462    1.37e-06    3.66e-07 0
+two parallel rays -> no point      ok
+one ray -> no point                ok
+no rays -> no point                ok
+point behind one eye -> eye dropped ok
+40 eyes at 1..1000 units           ok
+
+ALL PASSED (0 failures)

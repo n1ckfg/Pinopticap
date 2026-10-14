@@ -14,6 +14,9 @@
     <height>480</height>
     <debug>1</debug>
     <!-- * -->
+    <calibration_file>reconstruction.json</calibration_file>
+    <max_ray_angle>1.0</max_ray_angle>
+    <!-- * -->
     <send_osc>1</send_osc>
     <send_ws>1</send_ws>
     <send_mjpeg>0</send_mjpeg>

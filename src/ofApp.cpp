@@ -48,6 +48,18 @@ void ofApp::setup() {
 
 	dotSize = 10;
 
+    // ~ ~ ~   where each eye is, for triangulating blobs in 3D   ~ ~ ~
+    string calibrationFile = settings.getValue("settings:calibration_file", "reconstruction.json");
+    maxRayAngle = glm::radians(settings.getValue("settings:max_ray_angle", 1.0));
+    maxBlobAge = 3000 / std::max(camFramerate, 1); // three camera frames
+    if (ofFile::doesFileExist(calibrationFile)) calibrations = loadEyeCalibrations(calibrationFile);
+    cout << "\nCalibration: " << calibrations.size() << " eyes from " << calibrationFile << endl;
+
+    // the farthest eye goes halfway out on the grid
+    float reach = 0;
+    for (auto& calibration : calibrations) reach = std::max(reach, (float) glm::length(calibration.second.center));
+    worldScale = (reach > 0) ? 100.0 / reach : 1.0;
+
 	// ~ ~ ~   get a persistent name for this computer   ~ ~ ~
 #ifdef TARGET_LINUX_ARM
     ofSystem("cp /etc/hostname " + ofToDataPath("DocumentRoot/js/"));
@@ -79,6 +91,7 @@ void ofApp::setup() {
 //--------------------------------------------------------------
 void ofApp::update() {
     timestamp = getTimestamp();
+    bool newBlobs = false;
     
     // check for waiting messages
     while (receiver.hasWaitingMessages()) {
@@ -98,7 +111,12 @@ void ofApp::update() {
 			eyes.push_back(eye);
             eyes[whichOne].wsClientConnect(eye.hostName, wsClientPort);
 
-            cout << "New Eye detected: " << newHostName << " " << newSessionId << endl;
+            if (calibrations.count(newHostName) > 0) {
+                eyes[whichOne].calibration = calibrations[newHostName];
+                eyes[whichOne].calibrated = true;
+            }
+
+            cout << "New Eye detected: " << newHostName << " " << newSessionId << (eyes[whichOne].calibrated ? " (calibrated)" : "") << endl;
         }
         
         Eye eye = eyes[whichOne];
@@ -119,6 +137,7 @@ void ofApp::update() {
             int msg_timestamp = msg.getArgAsInt32(5);
             
             eyes[whichOne].addBlob(index, x, y, msg_timestamp, timestamp);
+            newBlobs = true;
         } else if (msg.getAddress() == "/video" && videoEnabled) {
             ofBuffer buffer = msg.getArgAsBlob(2);
             ofImage image;
@@ -139,6 +158,60 @@ void ofApp::update() {
             */
         }
     }
+
+    triangulateBlobs();
+
+    // pass the 3D blobs on whenever the eyes have reported something new
+    if (sendOsc && sender.isReady() && newBlobs) {
+        for (int i = 0; i < blobs3d.size(); i++) {
+            sendOscBlobs(blobs3d[i].index, blobs3d[i].position.x, blobs3d[i].position.y, blobs3d[i].position.z);
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void ofApp::triangulateBlobs() {
+    blobRays.clear();
+    blobs3d.clear();
+
+    // a ray through the newest position of every blob still being reported
+    for (int i = 0; i < eyes.size(); i++) {
+        if (!eyes[i].calibrated) continue;
+
+        for (int j = 0; j < eyes[i].blobSequences.size(); j++) {
+            Eye::EyeBlob& blob = eyes[i].blobSequences[j].blobs.back();
+            if (timestamp - blob.received > maxBlobAge) continue;
+            if (blob.x < 0 || blob.x > 1 || blob.y < 0 || blob.y > 1) continue; // must be a fraction of the image, not pixels
+
+            BlobRay ray;
+            ray.index = blob.index;
+            ray.origin = eyes[i].calibration.center;
+            ray.direction = eyes[i].calibration.ray(blob.x, blob.y);
+            blobRays.push_back(ray);
+        }
+    }
+
+    // rays with the same blob index are taken to be the same point
+    std::sort(blobRays.begin(), blobRays.end(), [](const BlobRay& a, const BlobRay& b) { return a.index < b.index; });
+
+    int first = 0;
+    while (first < blobRays.size()) {
+        int last = first + 1;
+        while (last < blobRays.size() && blobRays[last].index == blobRays[first].index) last++;
+
+        glm::dvec3 position;
+        int numEyes = intersectRays(&blobRays[first], last - first, maxRayAngle, position);
+
+        if (numEyes > 0) {
+            Blob3d blob;
+            blob.index = blobRays[first].index;
+            blob.position = glm::vec3(position);
+            blob.numEyes = numEyes;
+            blobs3d.push_back(blob);
+        }
+
+        first = last;
+    }
 }
 
 //--------------------------------------------------------------
@@ -149,10 +222,11 @@ void ofApp::draw() {
         cam.begin();
         ofEnableDepthTest();
         ofDrawGrid(20, 10, true, true, true, true);
+        drawWorld();
         ofDisableDepthTest();
         cam.end();
 
-		for (int i=0; i<eyes.size(); i++) {
+		for (int i=0; showEyes && i<eyes.size(); i++) {
 			int originX = eyeWidth * (i % numColumns);
 			int originY = eyeHeight * (i / numRows);
 
@@ -186,8 +260,48 @@ void ofApp::draw() {
 
         stringstream info;
         info << width << "x" << height << " @ " << ofGetFrameRate() << "fps" << " / " << timestamp << "\n";
+        if (calibrations.size() > 0) info << blobs3d.size() << " blobs in 3D / spacebar " << (showEyes ? "hides" : "shows") << " eyes\n";
         ofDrawBitmapStringHighlight(info.str(), 10, 10, ofColor::black, ofColor::yellow);
     }
+}
+
+// the calibrated eyes and the blobs triangulated from them, inside the 3D grid
+void ofApp::drawWorld() {
+    for (auto& calibration : calibrations) {
+        int whichOne = checkHostName(calibration.first);
+        ofSetColor(whichOne == -1 ? ofColor(127) : eyes[whichOne].idColor);
+
+        // an eye is drawn as the corners of its image
+        glm::vec3 center = glm::vec3(calibration.second.center) * worldScale;
+        glm::vec3 corners[4];
+        for (int i = 0; i < 4; i++) {
+            float x = (i == 1 || i == 2) ? 1 : 0;
+            float y = (i >= 2) ? 1 : 0;
+            corners[i] = center + glm::vec3(calibration.second.ray(x, y)) * (dotSize * 2.0f);
+        }
+        for (int i = 0; i < 4; i++) {
+            ofDrawLine(center, corners[i]);
+            ofDrawLine(corners[i], corners[(i + 1) % 4]);
+        }
+
+        ofDrawBitmapString(calibration.first, center);
+    }
+
+    ofSetColor(255);
+    for (int i = 0; i < blobs3d.size(); i++) {
+        glm::vec3 position = blobs3d[i].position * worldScale;
+        ofDrawSphere(position, dotSize / 2);
+        ofDrawBitmapString(ofToString(blobs3d[i].index), position + glm::vec3(dotSize));
+    }
+}
+
+// a 3D blob in the units of the calibration, sent under the name of this computer
+void ofApp::sendOscBlobs(int index, float x, float y, float z) {
+    Pinopticon::sendOscBlobs(sender, hostName, sessionId, index, x, y, z, timestamp);
+}
+
+void ofApp::keyPressed(int key) {
+    if (key == ' ') showEyes = !showEyes;
 }
 
 void ofApp::exit() {

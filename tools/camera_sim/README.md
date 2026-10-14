@@ -6,8 +6,6 @@ Python 3, standard library only.
 
 ## Quick start
 
-Start Pinopticap first, then:
-
 ```sh
 python3 camera_sim.py --cameras 9                  # 9 cameras around a spinning cube, to 127.0.0.1:7110
 python3 camera_sim.py --cameras 9 --host 10.0.0.5  # Pinopticap on another machine
@@ -16,16 +14,24 @@ python3 camera_sim.py --help                       # every option, with defaults
 
 Each camera appears in Pinopticap as its own node (`cam00.sim`, `cam01.sim`, ...) showing the cube's eight vertices from its own viewpoint.
 
+To see the cube rebuilt in 3D, give Pinopticap the cameras' calibration. It reads `bin/data/reconstruction.json` when it starts, so write the file first:
+
+```sh
+python3 camera_sim.py --cameras 9 --write-rig ../../bin/data/reconstruction.json
+```
+
+Then start Pinopticap. The overlay reports `8 blobs in 3D`; the spacebar hides the camera tiles so the 3D view behind them shows, with each calibrated camera drawn as the corners of its image.
+
 ## What is sent
 
-One datagram per blob, each a single message in a bundle, as `ofxOscSender` sends them:
+One datagram per blob, each a single message wrapped in a bundle. (`ofxOscSender` in openFrameworks 0.12.1 sends the bare message instead; `ofxOscReceiver` takes either.)
 
 | Address | Type tag | Arguments |
 | :--- | :--- | :--- |
 | `/blob` | `ssiffi` | hostName, sessionId, blobIndex, x, y, timestamp |
 | `/truth` | `ssifffi` | `"truth"`, `"SIM_truth"`, pointId, x, y, z, timestamp |
 
-`/truth` carries the true 3D position of every scene point once per frame. It is only sent with `--truth-port`, and goes to that port rather than to Pinopticap. The timestamp is epoch milliseconds cut to 32 bits, like `(int) ofGetSystemTimeMillis()`.
+`/truth` carries the true 3D position of every scene point once per frame. It is only sent with `--truth-port`, and goes to that port rather than to Pinopticap. The timestamp is epoch milliseconds cut to 32 bits, one clock for every simulated camera. Real nodes send `(int) ofGetSystemTimeMillis()`, which on 64-bit Linux counts from boot, so their timestamps cannot be compared from one node to the next.
 
 A point is only sent by cameras that can see it: it must be in front of the camera and inside the image.
 
@@ -83,5 +89,6 @@ On a Raspberry Pi 4 the simulator keeps pace up to roughly 30,000 blobs per seco
 ## Driving Pinopticap as it stands (October 2026)
 
 - **Host names.** Pinopticap opens a WebSocket to `<hostName>.local:7112` for every new node and waits for the name to resolve. A made-up single-label name such as `simcam00` stalls it for the mDNS timeout, 5 seconds per camera here. The default names (`cam00.sim`) have two labels, which the resolver rejects at once. If registration is still slow on your system, map the names to `127.0.0.1` in `/etc/hosts`.
-- **Start order and blob indices.** Pinopticap crashes when the first indices it receives from a node are not 0, 1, 2, ... in order (`Eye::addBlob` uses the index as a vector position). Start Pinopticap before the simulator. With `consistent` or `shuffled` labels, expect a crash as soon as a camera skips a point, through `--dropout` or because the point is out of its view. `raster` labels always count up from 0 and are safe.
-- **Pixels.** With `--coords pixels` the dots land far outside the tiles, because Pinopticap multiplies x and y by the tile size.
+- **3D needs matching blob indices.** Pinopticap triangulates the blobs that calibrated cameras report under the same index, so only `--labels consistent` rebuilds the scene. With `raster` or `shuffled` labels a point appears only where more than half of the cameras happen to agree, which is rare.
+- **3D output.** Pinopticap sends every triangulated point to `osc_host`:`osc_send_port` (7114) as `/blob` `ssifffi`, under its own hostName, whenever a camera has reported something new. `/truth` has the same arguments, so one listener can compare the two. The shipped `osc_host`, `Example.local`, does not resolve, and then nothing is sent; set it to the receiver's address in `bin/data/settings.xml`.
+- **Pixels.** With `--coords pixels` the dots land far outside the tiles, because Pinopticap multiplies x and y by the tile size, and nothing is triangulated.

@@ -66,7 +66,7 @@ flowchart TD
     subgraph OutputLayer["Visualization & Egress Layer"]
         GridRenderer["Grid Layout & Renderer\n(2D Mosaic + Info Overlay)"]
         Camera3D["3D Viewport\n(ofEasyCam + Grid)"]
-        OscSender["ofxOscSender\n(Relay to :7114 UDP)"]
+        OscSender["ofxOscSender\n(3D blobs to :7114 UDP)"]
     end
 
     Cam1 -->|OSC: /blob, /video| OscReceiver
@@ -101,8 +101,8 @@ flowchart TD
 ### 3.2 `ofApp` (`src/ofApp.h`, `src/ofApp.cpp`) — Main Controller
 - **Lifecycle Management**:
   - `setup()`: Reads `bin/data/settings.xml`, computes grid window dimensions, starts network listeners (OSC receiver, optional HTTP, MJPEG, and WebSocket servers), and resolves the local device hostname and session ID.
-  - `update()`: Drains the incoming OSC queue (`receiver.hasWaitingMessages()`), matches messages to remote Eye instances by hostname, dynamically registers new nodes, and updates data buffers.
-  - `draw()`: If `debug` is enabled, renders the multi-camera mosaic grid, color-coded blob track trajectories, hostnames, frame rate, and reference 3D ground grid.
+  - `update()`: Drains the incoming OSC queue (`receiver.hasWaitingMessages()`), matches messages to remote Eye instances by hostname, dynamically registers new nodes, updates data buffers, triangulates the current blobs (`triangulateBlobs()`), and sends the resulting 3D blobs on over OSC (`sendOscBlobs(index, x, y, z)`).
+  - `draw()`: If `debug` is enabled, renders the multi-camera mosaic grid, color-coded blob track trajectories, hostnames, frame rate, and reference 3D ground grid with the calibrated eyes and triangulated blobs in it (`drawWorld()`). The spacebar hides the mosaic.
   - `exit()`: Closes active WebSocket client connections across all `Eye` instances.
 - **Node Tracking & Registration**:
   - `checkHostName(string hostName)`: Scans existing `eyes` for matching hostname.
@@ -110,7 +110,7 @@ flowchart TD
   - Automatic connection: When a new node is observed, it instantiates an `Eye` object and triggers a client WebSocket connection back to the node (`eyes[whichOne].wsClientConnect(...)`).
 - **Network Servers**:
   - `ofxOscReceiver receiver`: Receives OSC packets from camera nodes.
-  - `ofxOscSender sender`: Re-broadcasts tracking telemetry.
+  - `ofxOscSender sender`: Sends the triangulated 3D blobs to `osc_host`.
   - `ofxHTTP::SimpleWebSocketServer wsServer`: Inbound WebSocket server responding to commands such as `take_photo` and `stream_photo`.
   - `ofxHTTP::SimpleIPVideoServer streamServer`: Serves live MJPEG streams.
   - `ofxHTTP::SimplePostServer postServer`: Handles HTTP POST submissions and file uploads.
@@ -125,15 +125,26 @@ Each `Eye` object encapsulates the state and history of one physical camera node
 - **Websocket Client (`wsClient`)**:
   - Direct `Poco::Net::WebSocket` client session connecting to `http://<hostName>.local:<wsClientPort>/?encoding=text`.
 - **Blob History Ring Buffer**:
-  - `EyeBlob`: Represents a single detected blob `(index, x, y, timestamp, diff)`.
+  - `EyeBlob`: Represents a single detected blob `(index, x, y, timestamp, diff, received)`; `received` is the local arrival time.
   - `EyeBlobSequence`: Retains a temporal history (`vector<EyeBlob>`) of a specific blob ID.
   - Ring buffer bounds: Capped at `numSamples` (30 frames) per blob sequence and `numBlobSequences` (200 unique tracks).
+- **Calibration**:
+  - `calibration` / `calibrated`: The node's `EyeCalibration`, set at registration if the calibration file has a shot for its hostname.
 - **Video Buffer**:
   - `EyeVideo`: Holds decoded `ofImage` frame, remote timestamp, and arrival latency (`diff`).
   - History buffer capped at `numSamples` (30 frames).
   - `drawVideo(x, y, w, h)`: Renders the latest received video frame.
 
-### 3.4 Shared Common Headers (`Pinopticon/core/common/src/`)
+### 3.4 `Triangulation.hpp` (`src/Triangulation.hpp`) — Calibration & 3D Triangulation
+Header-only, so it needs no entry in the Xcode or Visual Studio projects:
+- **`EyeCalibration`**: Position, orientation, focal length, and radial distortion of one camera. `ray(x, y)` turns a normalized image position into a ray direction in the world.
+- **`loadEyeCalibrations(filename)`**: Reads an OpenSfM `reconstruction.json` (perspective cameras) into a map keyed by hostname. A shot named `<hostName>_<anything>.jpg` calibrates the node with that hostname.
+- **`RayIntersector`**: Closed-form least-squares intersection of any number of rays, one symmetric 3x3 system.
+- **`fitRays(rays, n, skip, x, worst, worstError, total)`**: Intersects the rays still in play, optionally without one of them, weighted by 1 / depth². Reports the angle by which the worst ray misses the point and the sum over all rays.
+- **`intersectRays(rays, n, maxAngle, x)`**: Fits the rays and, as long as one misses the point by more than `maxAngle`, leaves one out. With up to 16 rays in play it tries each ray and leaves out the one without which the rest fit best (leave-one-out); with more, it leaves out the ray that misses by most. Gives no point unless at least two rays, and more than half of them, agree.
+- **Use in `ofApp`**: Each `update()`, the newest blob of every sequence received within the last three camera frames becomes a ray. Rays that share a blob index are intersected, so indices must mean the same point in every camera. Results are held in `blobs3d` and sent on as 3D `/blob` messages (section 4.2).
+
+### 3.5 Shared Common Headers (`Pinopticon/core/common/src/`)
 Pinopticap links directly against the Pinopticon shared core headers:
 - **`Pinopticon.hpp`**:
   - `getSessionId()`: Generates unique session keys (`RPi_%y%m%d%H%M%S%i`).
@@ -158,17 +169,17 @@ Pinopticap links directly against the Pinopticon shared core headers:
 | **7111** | TCP (HTTP) | MJPEG live stream server (`live_view.html`) | Outbound / Server | `stream_port` |
 | **7112** | TCP (WS) | Remote node WebSocket service (Pinopticap connects as client) | Outbound / Client | `ws_client_port` |
 | **7113** | TCP (HTTP) | HTTP POST and upload server (`result.html`) | Inbound / Server | `post_port` |
-| **7114** | UDP (OSC) | Outbound OSC relay sender | Outbound | `osc_send_port` |
+| **7114** | UDP (OSC) | Outbound sender of triangulated 3D blobs | Outbound | `osc_send_port` |
 | **7115** | TCP (WS) | Central WebSocket command & broadcast server | Inbound / Server | `ws_server_port` |
 
 ### 4.2 OSC Protocol Messages
 
-Pinopticap listens on port `7110` for OSC packets emitted by nodes:
+Pinopticap listens on port `7110` for OSC packets emitted by nodes, and sends the 3D `/blob` itself:
 
 | Address | Type Tag | Arguments | Description |
 | :--- | :--- | :--- | :--- |
 | `/blob` | `ssiffi` | `string hostName`<br>`string sessionId`<br>`int32 blobIndex`<br>`float x`<br>`float y`<br>`int32 timestamp` | Normalized 2D center coordinates of a tracked blob. |
-| `/blob` (3D) | `ssifffi` | `string hostName`<br>`string sessionId`<br>`int32 blobIndex`<br>`float x`<br>`float y`<br>`float z`<br>`int32 timestamp` | 3D tracked coordinate payload (supported in common parser). |
+| `/blob` (3D) | `ssifffi` | `string hostName`<br>`string sessionId`<br>`int32 blobIndex`<br>`float x`<br>`float y`<br>`float z`<br>`int32 timestamp` | A triangulated blob, **sent by Pinopticap** to `osc_host`:`osc_send_port`. `hostName` and `sessionId` are Pinopticap's own, `blobIndex` is the index the nodes reported the blob under, and x, y, z are in the units of the calibration file. |
 | `/video` | `ssbi` | `string hostName`<br>`string sessionId`<br>`blob videoBuffer`<br>`int32 timestamp` | JPEG-compressed image frame buffer. |
 | `/contour` | `ssibbi` | `string hostName`<br>`string sessionId`<br>`int32 contourIndex`<br>`blob colorBuffer`<br>`blob pointsBuffer`<br>`int32 timestamp` | Serialized contour geometry and color payload. |
 | `/pixel` | `ssffi` | `string hostName`<br>`string sessionId`<br>`float x`<br>`float y`<br>`int32 timestamp` | Coordinates of brightest pixel baseline tracking. |
@@ -239,17 +250,19 @@ sequenceDiagram
 
 | Setting | Default Value | Description |
 | :--- | :--- | :--- |
-| `osc_host` | `Example.local` | Destination hostname/IP for outbound OSC messages |
+| `osc_host` | `Example.local` | Destination hostname/IP for the 3D blobs. Nothing is sent while the name does not resolve |
 | `osc_receive_port` | `7110` | Port to receive incoming OSC messages from nodes |
 | `stream_port` | `7111` | Port for the MJPEG HTTP video stream |
 | `ws_client_port` | `7112` | Port on remote nodes to connect outbound WebSocket clients |
 | `post_port` | `7113` | Port for the HTTP POST server |
-| `osc_send_port` | `7114` | Port for sending outbound OSC messages |
+| `osc_send_port` | `7114` | Port the 3D blobs are sent to |
 | `ws_server_port` | `7115` | Port for the inbound WebSocket server |
 | `app_framerate` | `60` | Target application frame rate (FPS) |
 | `cam_framerate` | `40` | Remote camera sync rate reference |
 | `width` / `height` | `640` / `480` | Fallback display resolution (overridden by grid dimensions in setup) |
 | `debug` | `1` | Enable local GUI rendering, overlays, and 3D grid |
+| `calibration_file` | `reconstruction.json` | OpenSfM reconstruction in `bin/data` giving each node's pose and lens; without it nothing is triangulated |
+| `max_ray_angle` | `1.0` | Largest angle, in degrees, by which a camera's ray may miss a triangulated blob |
 | `send_osc` | `1` | Enable/disable outbound OSC sending |
 | `send_ws` | `1` | Enable/disable WebSocket server |
 | `send_mjpeg` | `0` | Enable/disable MJPEG streaming server |
@@ -304,7 +317,8 @@ Pinopticap/
 │   ├── ofApp.h              # Main application header and network server declarations
 │   ├── ofApp.cpp            # Main application loop, OSC ingestion, and UI rendering
 │   ├── Eye.h                # Eye node model and blob history header
-│   └── Eye.cpp              # Eye implementation, WebSocket client, and buffer management
+│   ├── Eye.cpp              # Eye implementation, WebSocket client, and buffer management
+│   └── Triangulation.hpp    # Camera calibration loader and N-view ray triangulation
 ├── tools/
 │   └── camera_sim/          # Simulated camera array sending OSC /blob from a shared 3D scene
 ├── docs/

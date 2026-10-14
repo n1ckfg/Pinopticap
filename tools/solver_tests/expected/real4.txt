@@ -1,0 +1,19 @@
+calibration: 5 eyes
+gate 1.00 deg; a result more than 0.5 units from the truth counts as wrong; errors are rms over the right ones
+                                            | header                                              | prototype            
+group                          cases  depth | right  none wrong  rays   across    along      max | right  none wrong
+all_four/noise_0px              1138   5.44 |  1138     0     0  3.83   0.0000   0.0000   0.0000 |  1138     0     0
+all_four/noise_0.5px            1138   5.44 |  1138     0     0  3.83   0.0109   0.0281   0.1158 |  1138     0     0
+all_four/noise_1px              1138   5.44 |  1138     0     0  3.83   0.0224   0.0567   0.3125 |  1138     0     0
+all_four/noise_2px              1138   5.44 |  1138     0     0  3.83   0.0458   0.1148   0.4724 |  1138     0     0
+all_four/noise_4px              1138   5.44 |  1070     0    68  3.82   0.0756   0.1910   0.4949 |  1071     0    67
+two_cameras/noise_0px           3136   5.52 |  3136     0     0  2.00   0.0000   0.0000   0.0000 |  3136     0     0
+three_cameras/noise_0px         1001   5.57 |  1001     0     0  3.00   0.0000   0.0000   0.0000 |  1001     0     0
+two_cameras/noise_1px           3134   5.51 |  3134     0     0  2.00   0.0369   0.0955   0.4179 |  3134     0     0
+three_cameras/noise_1px         1000   5.57 |  1000     0     0  3.00   0.0241   0.0630   0.2358 |  1000     0     0
+1_of_4_mislabelled/noise_0px     844   5.57 |   844     0     0  3.00   0.0000   0.0000   0.0000 |   843     1     0
+1_of_3_mislabelled/noise_0px     844   5.56 |   844     0     0  2.00   0.0000   0.0000   0.0000 |   844     0     0
+2_cameras_2_points/noise_0px     844   5.54 |     0   805    39  0.00   0.0000   0.0000   0.0000 |     0   805    39
+1_of_4_mislabelled/noise_1px     813   5.57 |   813     0     0  3.00   0.0275   0.0722   0.2883 |   811     2     0
+1_of_3_mislabelled/noise_1px     813   5.56 |   806     0     7  2.00   0.0418   0.1112   0.4234 |   805     1     7
+2_cameras_2_points/noise_1px     813   5.54 |     1   775    37  2.00   0.0520   0.2838   0.2885 |     1   775    37

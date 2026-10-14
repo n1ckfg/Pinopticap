@@ -1,0 +1,87 @@
+loaded 4 eyes from ring4.json: cam00.sim cam01.sim cam02.sim ...
+loaded 4 eyes from dome4.json: cam00.sim cam01.sim cam02.sim ...
+loaded 4 eyes from random4_seed1.json: cam00.sim cam01.sim cam02.sim ...
+loaded 4 eyes from random4_seed2.json: cam00.sim cam01.sim cam02.sim ...
+loaded 4 eyes from random4_seed3.json: cam00.sim cam01.sim cam02.sim ...
+loaded 4 eyes from ring4_distorted.json: cam00.sim cam01.sim cam02.sim ...
+loaded 4 eyes from ring4_noise1.json: cam00.sim cam01.sim cam02.sim ...
+loaded 4 eyes from ring4_noise1_drop30.json: cam00.sim cam01.sim cam02.sim ...
+loaded 4 eyes from ring4_unsync_noise1.json: cam00.sim cam01.sim cam02.sim ...
+loaded 4 eyes from ring4_unsync_spin180.json: cam00.sim cam01.sim cam02.sim ...
+loaded 4 eyes from ring4_bump000.json: cam00.sim cam01.sim cam02.sim ...
+loaded 4 eyes from ring4_bump025.json: cam00.sim cam01.sim cam02.sim ...
+loaded 4 eyes from ring4_bump050.json: cam00.sim cam01.sim cam02.sim ...
+loaded 4 eyes from ring4_bump075.json: cam00.sim cam01.sim cam02.sim ...
+loaded 4 eyes from ring4_bump100.json: cam00.sim cam01.sim cam02.sim ...
+loaded 4 eyes from ring4_bump150.json: cam00.sim cam01.sim cam02.sim ...
+loaded 4 eyes from ring4_bump200.json: cam00.sim cam01.sim cam02.sim ...
+loaded 4 eyes from ring4_bump500.json: cam00.sim cam01.sim cam02.sim ...
+
+group                               cases  none   rays in rays used max |x-ref| rms |x-truth| failed
+ring4/ungated                         480     0      1920      1920    1.67e-15    4.98e-08 0
+ring4/1deg                            480     0      1920      1920    1.67e-15    4.98e-08 0
+ring4/1_of_4_mislabelled              480     0      1920      1440    2.73e-15    6.34e-08 0
+ring4/1_of_3_mislabelled              480     0      1440       960    2.21e-07    8.28e-08 0
+ring4/2_of_4_mislabelled              480   480      1920         0           0           0 0
+ring4/2_cameras_2_points              480   462       960        36        1.05       0.882 0
+dome4/ungated                         480     0      1920      1920    1.89e-15    4.54e-08 0
+dome4/1deg                            480     0      1920      1920    1.89e-15    4.54e-08 0
+dome4/1_of_4_mislabelled              480     0      1920      1440    2.53e-15     5.3e-08 0
+dome4/1_of_3_mislabelled              480     0      1440       960    1.84e-07    6.77e-08 0
+dome4/2_of_4_mislabelled              480   480      1920         0           0           0 0
+dome4/2_cameras_2_points              480   435       960        90        1.66        1.48 0
+random4_seed1/ungated                 480     0      1920      1920    4.18e-15    4.98e-08 0
+random4_seed1/1deg                    480     0      1920      1920    4.18e-15    4.98e-08 0
+random4_seed1/1_of_4_mislabelled      480     0      1920      1440    4.37e-15    7.71e-08 0
+random4_seed1/1_of_3_mislabelled      480     0      1440       960    4.34e-07    1.29e-07 0
+random4_seed1/2_of_4_mislabelled      480   480      1920         0           0           0 0
+random4_seed1/2_cameras_2_points      480   449       960        62        1.41       0.898 0
+random4_seed2/ungated                 480     0      1920      1920    3.95e-15    6.15e-08 0
+random4_seed2/1deg                    480     0      1920      1920    3.95e-15    6.15e-08 0
+random4_seed2/1_of_4_mislabelled      480     0      1920      1440    5.77e-15    6.84e-08 0
+random4_seed2/1_of_3_mislabelled      480     0      1440       960    1.89e-07    7.53e-08 0
+random4_seed2/2_of_4_mislabelled      480   480      1920         0           0           0 0
+random4_seed2/2_cameras_2_points      480   394       960       172        1.82        1.44 0
+random4_seed3/ungated                 480     0      1842      1842    4.38e-15     4.7e-08 0
+random4_seed3/1deg                    480     0      1842      1842    4.38e-15     4.7e-08 0
+random4_seed3/1_of_4_mislabelled      402     0      1608      1206    4.39e-15    5.68e-08 0
+random4_seed3/1_of_3_mislabelled      402     0      1206       804    2.66e-07    9.39e-08 0
+random4_seed3/2_of_4_mislabelled      324   324      1296         0           0           0 0
+random4_seed3/2_cameras_2_points      324   292       648        64        1.56        1.41 0
+ring4_distorted/ungated               480     0      1920      1920    2.14e-11    4.94e-08 0
+ring4_distorted/1deg                  480     0      1920      1920    2.14e-11    4.94e-08 0
+ring4_distorted/1_of_4_mislabelled    480     0      1920      1440    2.64e-11    6.15e-08 0
+ring4_distorted/1_of_3_mislabelled    480     0      1440       960     1.9e-07     8.2e-08 0
+ring4_distorted/2_of_4_mislabelled    480   480      1920         0           0           0 0
+ring4_distorted/2_cameras_2_points    480   462       960        36        1.05       0.882 0
+ring4_noise1/ungated                  480     0      1920      1920     1.7e-15     0.00614 0
+ring4_noise1/1deg                     480     0      1920      1920     1.7e-15     0.00614 0
+ring4_noise1_drop30/ungated           446     0      1313      1313     1.5e-14     0.00843 0
+ring4_noise1_drop30/1deg              446     0      1313      1313     1.5e-14     0.00843 0
+ring4_unsync_noise1/ungated           480     0      1920      1920    1.92e-15      0.0064 0
+ring4_unsync_noise1/1deg              480     0      1920      1920    1.92e-15      0.0064 0
+ring4_unsync_spin180/ungated          480     0      1920      1920     1.9e-15      0.0098 0
+ring4_unsync_spin180/1deg             480     0      1920      1920     1.9e-15      0.0098 0
+one_camera_turned_0.00deg/noise0      480     0      1920      1920    1.03e-07    4.98e-08 0
+one_camera_turned_0.25deg/noise0      480     0      1920      1920     0.00699     0.00607 0
+one_camera_turned_0.50deg/noise0      480     0      1920      1920       0.014      0.0121 0
+one_camera_turned_0.75deg/noise0      480     0      1920      1920       0.021      0.0182 0
+one_camera_turned_1.00deg/noise0      480     0      1920      1920       0.028      0.0243 0
+one_camera_turned_1.50deg/noise0      480     0      1920      1800      0.0419      0.0336 0
+one_camera_turned_2.00deg/noise0      480     0      1920      1633      0.0559      0.0342 0
+one_camera_turned_5.00deg/noise0      480     0      1920      1440     1.3e-07    6.34e-08 0
+one_camera_turned_0.00deg/noise1      480     0      1920      1920      0.0151     0.00607 0
+one_camera_turned_0.25deg/noise1      480     0      1920      1920      0.0186     0.00862 0
+one_camera_turned_0.50deg/noise1      480     0      1920      1920      0.0254      0.0136 0
+one_camera_turned_0.75deg/noise1      480     0      1920      1920      0.0322      0.0192 0
+one_camera_turned_1.00deg/noise1      480     0      1920      1920      0.0389      0.0251 0
+one_camera_turned_1.50deg/noise1      480     0      1920      1796      0.0524      0.0338 0
+one_camera_turned_2.00deg/noise1      480     0      1920      1620      0.0988      0.0341 0
+one_camera_turned_5.00deg/noise1      480     0      1920      1440      0.0214     0.00746 0
+two parallel rays -> no point      ok
+one ray -> no point                ok
+no rays -> no point                ok
+point behind one eye -> eye dropped ok
+40 eyes at 1..1000 units           ok
+
+ALL PASSED (0 failures)

@@ -225,7 +225,7 @@ def osc_string(s):
 
 def datagram_prefix(address, typetags, payload_size, *strings):
     """Constant leading bytes of a datagram: one message whose leading arguments
-    are strings, wrapped in a bundle as ofxOscSender::sendMessage does."""
+    are strings, wrapped in a bundle (ofxOscReceiver takes it bare or wrapped)."""
     head = osc_string(address) + osc_string("," + typetags) + b"".join(map(osc_string, strings))
     return b"#bundle\0" + struct.pack(">QI", 1, len(head) + payload_size) + head
 

@@ -59,16 +59,17 @@ void Eye::addBlob(int _index, float _x, float _y, int _timestamp, int _diff_time
     blob.x = _x;
     blob.y = _y;
     blob.timestamp = abs(_diff_timestamp - _timestamp);
+    blob.received = _diff_timestamp;
     
 	//cout << "Blob received, diff " << blob.timestamp << endl;
 
 	int whichOne = checkUniqueBlob(blob.index);
 
 	if (whichOne == -1) {
-		cout << "Eye " << index << ", new blob " << whichOne << endl;
+		cout << "Eye " << index << ", new blob " << blob.index << endl;
 		EyeBlobSequence blobSequence = EyeBlobSequence();
-		whichOne = blob.index;
-		blobSequence.index = whichOne;
+		whichOne = blobSequences.size();
+		blobSequence.index = blob.index;
 		blobSequences.push_back(blobSequence);
 	}
 

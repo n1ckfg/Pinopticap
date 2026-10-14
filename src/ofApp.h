@@ -17,6 +17,7 @@ class ofApp : public ofBaseApp {
         void update();
         void draw();
         void exit();
+        void keyPressed(int key);
             
         int width, height, appFramerate, camFramerate;
 		int eyeWidth, eyeHeight, thumbWidth, thumbHeight, numColumns, numRows;
@@ -63,5 +64,23 @@ class ofApp : public ofBaseApp {
         int checkHostName(string _hostName);
 
         ofEasyCam cam; // add mouse controls for camera movement
+
+        // ~ ~ ~ 3D ~ ~ ~
+        struct Blob3d {
+            int index;
+            glm::vec3 position;
+            int numEyes; // how many eyes agree on it
+        };
+
+        map<string, EyeCalibration> calibrations; // by hostName
+        vector<BlobRay> blobRays;
+        vector<Blob3d> blobs3d;
+        double maxRayAngle; // radians a ray may miss a 3D blob by
+        int maxBlobAge; // ms after which a 2D blob is no longer current
+        float worldScale; // calibration units to grid units
+        bool showEyes = true; // spacebar hides the 2D eyes
+
+        void triangulateBlobs();
+        void drawWorld();
 
 };

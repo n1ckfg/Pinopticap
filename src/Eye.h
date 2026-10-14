@@ -8,6 +8,8 @@
 #include "ofxJSONElement.h"
 #include "ofxCrypto.h"
 
+#include "Triangulation.hpp"
+
 class Eye {
 
     public:
@@ -28,6 +30,7 @@ class Eye {
             float y;
             int timestamp;
             int diff;
+            int received; // local time of arrival
         };
         
 		struct EyeBlobSequence {
@@ -46,6 +49,9 @@ class Eye {
 		vector<EyeVideo> videos;
 
 		ofColor idColor, bgColor;
+
+		EyeCalibration calibration;
+		bool calibrated = false;
 
         void update();
         void draw();

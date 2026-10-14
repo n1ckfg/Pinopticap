@@ -1,0 +1,25 @@
+config                              true pts recovered percent  ghosts   rms err   max err
+cube8_ring_consistent                    960       960  100.0%       0    0.0061    0.0168
+cube8_ring_raster                        960       219   22.8%       3    0.0128    0.0990
+cube8_ring_shuffled                      960         0    0.0%       0    0.0000    0.0000
+cube8_ring_consistent_drop05             960       959   99.9%       0    0.0062    0.0160
+cube8_ring_consistent_drop30             960       879   91.6%       0    0.0087    0.0713
+cube8_ring_consistent_drop50             960       659   68.6%       0    0.0097    0.0416
+cube8_ring_raster_drop05                 960       239   24.9%      19    0.0171    0.0947
+1point_ring_raster                       120       120  100.0%       0    0.0065    0.0157
+1point_ring_raster_drop30                120       108   90.0%       0    0.0089    0.0274
+2points_ring_raster                      240       240  100.0%       0    0.0061    0.0121
+3points_ring_raster                      360       312   86.7%       0    0.0080    0.0558
+4points_ring_raster                      480       290   60.4%      21    0.0212    0.0958
+1point_dome_raster                       120       120  100.0%       0    0.0058    0.0122
+1point_dome_raster_drop30                120       108   90.0%       0    0.0071    0.0146
+2points_dome_raster                      240       240  100.0%       0    0.0068    0.0131
+3points_dome_raster                      360       224   62.2%       0    0.0115    0.0743
+4points_dome_raster                      480       271   56.5%       7    0.0196    0.0914
+1point_random_raster                     120       120  100.0%       0    0.0058    0.0139
+1point_random_raster_drop30              120       108   90.0%       0    0.0086    0.0314
+2points_random_raster                    240       240  100.0%       0    0.0082    0.0237
+3points_random_raster                    360       291   80.8%       0    0.0063    0.0193
+4points_random_raster                    480       364   75.8%      27    0.0212    0.0990
+cloud32_ring_raster                     3840       660   17.2%     182    0.0462    0.0998
+cloud32_ring_consistent                 3840      3840  100.0%       0    0.0061    0.0176
