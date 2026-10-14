@@ -1,0 +1,31 @@
+=== src/Eye.cpp ===
+1:#include "Eye.h"
+=== src/main.cpp ===
+1:#include "ofMain.h"
+2:#include "ofApp.h"
+=== src/ofApp.cpp ===
+1:#include "ofApp.h"
+3:#include "../../common/src/Pinopticon.hpp"
+4:#include "../../common/src/Pinopticon_Http.hpp"
+5:#include "../../common/src/Pinopticon_Osc.hpp"
+=== src/Eye.h ===
+3:#include "ofMain.h"
+4:#include "ofxCv.h"
+5:#include "ofxOsc.h"
+6:#include "ofxXmlSettings.h"
+7:#include "ofxHTTP.h"
+8:#include "ofxJSONElement.h"
+9:#include "ofxCrypto.h"
+11:#include "Triangulation.hpp"
+=== src/ofApp.h ===
+3:#include "ofMain.h"
+4:#include "ofxCv.h"
+5:#include "ofxOsc.h"
+6:#include "ofxXmlSettings.h"
+7:#include "ofxHTTP.h"
+8:#include "ofxJSONElement.h"
+9:#include "ofxCrypto.h"
+11:#include "Eye.h"
+=== src/Triangulation.hpp ===
+3:#include "ofMain.h"
+4:#include "ofxJSONElement.h"

@@ -1,0 +1,52 @@
+PINOPTICAP ARCHITECTURE.md AUDIT - deterministic checks
+files: 6, total src LOC: 918
+
+[PASS] doc config keys exist in settings.xml  -> doc-only keys: []; osc_host present: True
+[PASS] settings.xml keys documented  -> undocumented keys: []
+[PASS] addons match addons.make  -> doc-only: [], make-only: []
+[PASS] symbol checkHostName  -> ofApp.h,ofApp.cpp
+[PASS] symbol checkSessionId  -> ofApp.h,ofApp.cpp
+[PASS] symbol wsClientConnect  -> ofApp.cpp,Eye.h,Eye.cpp
+[PASS] symbol triangulateBlobs  -> ofApp.h,ofApp.cpp
+[PASS] symbol sendOscBlobs  -> ofApp.h,ofApp.cpp
+[PASS] symbol drawWorld  -> ofApp.h,ofApp.cpp
+[PASS] symbol drawVideo  -> ofApp.cpp,Eye.h,Eye.cpp
+[PASS] symbol addBlob  -> ofApp.cpp,Eye.h,Eye.cpp
+[PASS] symbol addVideo  -> ofApp.cpp,Eye.h,Eye.cpp
+[PASS] symbol bufferToImage  -> ofApp.cpp
+[PASS] symbol imageToBuffer  -> common/Pinopticon.hpp
+[PASS] symbol loadEyeCalibrations  -> ofApp.cpp,Triangulation.hpp
+[PASS] symbol fitRays  -> Triangulation.hpp
+[PASS] symbol intersectRays  -> ofApp.cpp,Triangulation.hpp
+[PASS] symbol getSessionId  -> ofApp.cpp
+[PASS] symbol getHostName  -> ofApp.cpp
+[PASS] symbol rawDepthToMeters  -> common/Pinopticon.hpp
+[PASS] port 7110 in settings.xml
+[PASS] port 7111 in settings.xml
+[PASS] port 7112 in settings.xml
+[PASS] port 7113 in settings.xml
+[PASS] port 7114 in settings.xml
+[PASS] port 7115 in settings.xml
+[PASS] src file set matches doc directory listing
+[PASS] member hostName  -> ofApp.h,ofApp.cpp,Eye.h,Eye.cpp,Triangulation.hpp
+[PASS] member sessionId  -> ofApp.h,ofApp.cpp,Eye.h,Eye.cpp
+[PASS] member idColor  -> ofApp.cpp,Eye.h,Eye.cpp
+[PASS] member bgColor  -> ofApp.cpp,Eye.h,Eye.cpp
+[PASS] member EyeBlobSequence  -> Eye.h,Eye.cpp
+[PASS] member EyeVideo  -> Eye.h,Eye.cpp
+[PASS] member EyeCalibration  -> ofApp.h,ofApp.cpp,Eye.h,Triangulation.hpp
+[PASS] member RayIntersector  -> Triangulation.hpp
+[PASS] member blobs3d  -> ofApp.h,ofApp.cpp
+[PASS] constant numSamples  -> main.cpp,Eye.h,Eye.cpp
+[PASS] constant numBlobSequences  -> Eye.h,Eye.cpp
+[PASS] common header Pinopticon.hpp
+[PASS] common header Pinopticon_Osc.hpp
+[PASS] common header Pinopticon_Http.hpp
+[PASS] file Pinopticap.sln
+[PASS] file Pinopticap.xcodeproj
+[PASS] file Pinopticap.vcxproj
+[PASS] file setup.sh
+[PASS] file get-bin.sh
+[PASS] tools/camera_sim exists
+
+47 checks, 0 failures
